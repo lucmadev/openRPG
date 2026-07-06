@@ -52,7 +52,8 @@ object EffectRegistry {
         }
         register("fire_aura") { config ->
             val duration = (config["duration"] as? Number)?.toInt() ?: 3
-            FireAuraEffect(duration)
+            val cooldown = (config["cooldown"] as? Number)?.toInt() ?: 0
+            FireAuraEffect(duration, cooldown)
         }
         register("critical_chance") { config ->
             val chance = (config["chance"] as? Number)?.toDouble() ?: 0.05

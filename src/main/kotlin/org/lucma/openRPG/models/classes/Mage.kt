@@ -22,7 +22,7 @@ class Mage : PlayerClass() {
         Modifier(NightTimeCondition(), CriticalChanceEffect(0.05)),
         Modifier(LowHealthCondition(), DefenseBonusEffect(0.10)),
         Modifier(LowHealthCondition(), CriticalDamageEffect(0.25)),
-        Modifier(CloseEnemiesCondition(), FireAuraEffect(2)),
+        Modifier(CloseEnemiesCondition(), FireAuraEffect(duration = 2, cooldownSeconds = 5)),
         Modifier(CloseEnemiesCondition(), SpeedBonusEffect(0.05))
     )
 }

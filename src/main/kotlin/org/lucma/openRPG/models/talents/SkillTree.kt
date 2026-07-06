@@ -39,7 +39,7 @@ object SkillTree {
         register("mag_damage_2",    "Lluvia de estrellas","+35% daño de noche",               Modifier(NightTimeCondition(), DamageBonusEffect(0.35)),          Material.DRAGON_BREATH,       prerequisites = listOf("mag_damage_1"))
         register("mag_crit_rate_1", "Ojo de la noche",   "+8% prob. crítico de noche",        Modifier(NightTimeCondition(), CriticalChanceEffect(0.08)),      Material.SPYGLASS)
         register("mag_crit_dmg_1",  "Explosión arcana",  "+0.75 multi. crítico si baja vida", Modifier(LowHealthCondition(), CriticalDamageEffect(0.75)),      Material.FIREWORK_STAR)
-        register("mag_fire_1",      "Llamas eternas",    "+3s ígneo al golpear",              Modifier(CloseEnemiesCondition(), FireAuraEffect(3)),            Material.BLAZE_ROD)
+        register("mag_fire_1",      "Llamas eternas",    "+3s ígneo (cooldown 4s)",           Modifier(CloseEnemiesCondition(), FireAuraEffect(3, 4)),         Material.BLAZE_ROD)
         register("mag_speed_1",     "Viento mágico",     "+15% velocidad al tener enemigos",  Modifier(CloseEnemiesCondition(), SpeedBonusEffect(0.15)),       Material.FEATHER)
 
         // ── Asesino ──

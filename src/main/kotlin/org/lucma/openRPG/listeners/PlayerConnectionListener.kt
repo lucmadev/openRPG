@@ -6,6 +6,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.lucma.openRPG.core.CooldownManager
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 
@@ -34,6 +35,7 @@ object PlayerConnectionListener : Listener {
 
             PlayerClassManager.removeFromMemory(player)
             PlayerDataManager.unload(player)
+            CooldownManager.clear(player)
 
         } catch (ex: Exception) {
             Bukkit.getLogger().severe("[openRPG] Error en PlayerQuitEvent: " + ex.message)
