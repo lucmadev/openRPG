@@ -3,7 +3,7 @@
 Todos los nodos del árbol de talentos se cargan desde `plugins/openRPG/skills.yml`.  
 No hace falta recompilar el plugin para agregar, modificar o eliminar skills.
 
-## Archivo
+## Ubicación del archivo
 
 | Ubicación | Propósito |
 |---|---|
@@ -12,7 +12,7 @@ No hace falta recompilar el plugin para agregar, modificar o eliminar skills.
 
 Al iniciar el plugin, si no existe la copia en `plugins/`, se crea automáticamente desde el JAR.
 
-## Estructura general
+## Estructura
 
 ```yaml
 skills:
@@ -22,7 +22,7 @@ skills:
     class: warrior|mage|assassin
     material: MATERIAL_BUKKIT
     prerequisites:
-      - <id_de_skill_requerido>
+      - <id_del_skill_requerido>
     condition:
       type: <id_registro_condición>
       config:
@@ -39,11 +39,11 @@ skills:
 |---|---|---|
 | `id` (la clave YAML) | Sí | Identificador único. Ej: `war_damage_3` |
 | `name` | Sí | Nombre visible en el GUI |
-| `description` | No | Texto que aparece en el lore del item |
+| `description` | No | Texto en el lore del item |
 | `class` | Sí | `warrior`, `mage` o `assassin` |
 | `material` | No | Material Bukkit. Default: `ENCHANTED_BOOK` |
 | `prerequisites` | No | Lista de IDs que deben estar desbloqueados primero |
-| `condition` | Sí | Condición que debe cumplirse para que el skill se active |
+| `condition` | Sí | Condición que debe cumplirse para activar el skill |
 | `effect` | Sí | Efecto que se aplica cuando la condición se cumple |
 
 ## Condiciones disponibles
@@ -67,7 +67,7 @@ Se activa cuando la vida del jugador está por debajo de un porcentaje.
 condition:
   type: low_health
   config:
-    threshold: 0.30   # 0.30 = 30% de vida (default: 0.30)
+    threshold: 0.30   # 0.30 = 30% vida (default: 0.30)
 ```
 
 ### night_time
@@ -127,7 +127,7 @@ effect:
 
 ### critical_chance
 
-Añade probabilidad de golpe crítico (se suma, no multiplica).
+Añade probabilidad de golpe crítico (aditivo, no multiplicativo).
 
 ```yaml
 effect:
@@ -149,7 +149,7 @@ effect:
 
 ### heal
 
-Cura una cantidad fija de vida al jugador.
+Cura una cantidad fija de vida.
 
 ```yaml
 effect:
@@ -171,14 +171,14 @@ effect:
 
 ### fire_aura
 
-Prende fuego al enemigo golpeado. Acepta cooldown.
+Prende fuego al enemigo golpeado. Soporta cooldown.
 
 ```yaml
 effect:
   type: fire_aura
   config:
     duration: 3       # segundos de combustión (default: 3)
-    cooldown: 5       # segundos de espera entre usos (default: 0 = sin cd)
+    cooldown: 5       # segundos de cooldown entre usos (default: 0 = sin cd)
 ```
 
 ## Ejemplos
@@ -208,7 +208,7 @@ war_damage_2:
   description: "+25% daño cerca de enemigos"
   class: warrior
   material: DIAMOND_SWORD
-  prerequisites: [war_damage_1]   # necesita Furia primero
+  prerequisites: [war_damage_1]
   condition:
     type: close_enemies
     config: { radius: 5.0 }
@@ -217,7 +217,7 @@ war_damage_2:
     config: { bonus: 0.25 }
 ```
 
-### Skill con efecto y cooldown
+### Skill con cooldown
 
 ```yaml
 mag_fire_1:
@@ -277,7 +277,7 @@ Para escalar a **1328 skills** (o los que sean):
 
 No se necesita:
 - ❌ Recompilar el plugin
-- ❌ Modificar ningún archivo Kotlin  
+- ❌ Modificar ningún archivo Kotlin
 - ❌ Reiniciar el servidor (solo `/reload`)
 - ❌ Registrar nada en código
 

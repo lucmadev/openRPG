@@ -1,4 +1,4 @@
-# openRPG API
+# API de openRPG
 
 Otros plugins pueden extender openRPG registrando clases, condiciones, efectos y operadores de stats propios, o leyendo datos de los jugadores.
 
@@ -33,7 +33,7 @@ class Paladin : PlayerClass() {
 api.registerClass(Paladin())
 ```
 
-Los jugadores la ven en `/openrpg class` si `ClassSelectionGUI` incluye su slot. Si no, pueden asignarla por comando directo:
+Los jugadores la ven en `/openrpg class` o pueden asignarla directamente:
 
 ```
 /openrpg class paladin
@@ -49,11 +49,11 @@ interface Condition {
 }
 ```
 
-Se registran con fábrica que recibe un `Map<String, Any>` para poder crearse desde `skills.yml`:
+Se registran con una fábrica que recibe `Map<String, Any>` para poder crearse desde `skills.yml`:
 
 ```kotlin
 api.registerCondition("raining") { config ->
-    RainingCondition() // implementas Condition
+    RainingCondition()
 }
 ```
 
@@ -101,7 +101,7 @@ Los operadores modifican `PlayerStats` directamente:
 ```kotlin
 api.registerStatModifier("jump_boost") { stats, config ->
     val value = (config["value"] as? Number)?.toDouble() ?: 1.0
-    stats.jumpMultiplier *= value // campo que agregues en PlayerStats
+    stats.jumpMultiplier *= value
 }
 ```
 
@@ -110,7 +110,7 @@ api.registerStatModifier("jump_boost") { stats, config ->
 ```kotlin
 // Clase actual
 val clazz = api.getPlayerClass(player)
-api.setPlayerClass(player, someClass)
+api.setPlayerClass(player, algunaClase)
 
 // Nivel, EXP, talentos
 val data = api.getPlayerData(player)
@@ -176,7 +176,7 @@ val mod = api.modifier(condition, effect)
 val ctx = api.context(player, event)
 ```
 
-## API completa
+## Referencia completa de la API
 
 | Método | Descripción |
 |---|---|
