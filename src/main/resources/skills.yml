@@ -1,44 +1,258 @@
 # ───────────────────────────────────────────────
-#  openRPG — Árbol de talentos (skills.yml)
+#  openRPG — Árbol de talentos
 # ───────────────────────────────────────────────
-#  Para escalar a 1328 skills: solo agregar
-#  entradas aquí. No hace falta recompilar.
+#  Todos los skills se cargan desde aquí.
+#  Editar y hacer /openrpg reload para aplicar.
 #
-#  Formato de cada skill:
-#
+#  Formato:
 #   <id>:
-#     name: <nombre visible>
-#     description: "<descripción>"
+#     name: <nombre>
+#     description: "<texto>"
 #     class: warrior|mage|assassin
 #     material: MATERIAL_BUKKIT
-#     x: <columna>      # opcional, para GUI
-#     y: <fila>          # opcional, para GUI
-#     prerequisites:
-#       - <id_de_skill_requerido>
+#     prerequisites: [<id>, ...]
 #     condition:
-#       type: <id_del_registro_de_condición>
-#       config:
-#         <param>: <valor>
+#       type: <registro_condición>
+#       config: { <param>: <valor> }
 #     effect:
-#       type: <id_del_registro_de_efecto>
-#       config:
-#         <param>: <valor>
-#
-#  Tipos de condición disponibles:
-#    close_enemies  (config: radius)
-#    low_health     (config: threshold)
-#    night_time     (sin config)
-#    sneaking       (sin config)
-#
-#  Tipos de efecto disponibles:
-#    damage_bonus   (config: bonus)
-#    defense_bonus  (config: bonus)
-#    speed_bonus    (config: bonus)
-#    heal           (config: amount)
-#    life_steal     (config: percentage)
-#    fire_aura      (config: duration, cooldown)
-#    critical_chance(config: chance)
-#    critical_damage(config: bonus)
+#       type: <registro_efecto>
+#       config: { <param>: <valor> }
 # ───────────────────────────────────────────────
 
-skills: {}
+skills:
+  # ════════════════════ Guerrero ════════════════════
+  war_damage_1:
+    name: "Furia"
+    description: "+15% daño cerca de enemigos"
+    class: warrior
+    material: IRON_SWORD
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.15 }
+
+  war_damage_2:
+    name: "Torbellino"
+    description: "+25% daño cerca de enemigos"
+    class: warrior
+    material: DIAMOND_SWORD
+    prerequisites: [war_damage_1]
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.25 }
+
+  war_defense_1:
+    name: "Fortaleza"
+    description: "+15% defensa cerca de enemigos"
+    class: warrior
+    material: SHIELD
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: defense_bonus
+      config: { bonus: 0.15 }
+
+  war_crit_rate_1:
+    name: "Instinto asesino"
+    description: "+7% prob. crítico"
+    class: warrior
+    material: REDSTONE
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: critical_chance
+      config: { chance: 0.07 }
+
+  war_crit_dmg_1:
+    name: "Golpe brutal"
+    description: "+0.50 multi. crítico"
+    class: warrior
+    material: NETHERITE_AXE
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: critical_damage
+      config: { bonus: 0.50 }
+
+  war_heal_1:
+    name: "Regeneración"
+    description: "Cura 2\u2764 al golpear si vida < 30%"
+    class: warrior
+    material: APPLE
+    prerequisites: []
+    condition:
+      type: low_health
+      config: { threshold: 0.30 }
+    effect:
+      type: heal
+      config: { amount: 2.0 }
+
+  # ════════════════════ Mago ════════════════════
+  mag_damage_1:
+    name: "Poder estelar"
+    description: "+20% daño de noche"
+    class: mage
+    material: ENDER_PEARL
+    prerequisites: []
+    condition:
+      type: night_time
+      config: {}
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.20 }
+
+  mag_damage_2:
+    name: "Lluvia de estrellas"
+    description: "+35% daño de noche"
+    class: mage
+    material: DRAGON_BREATH
+    prerequisites: [mag_damage_1]
+    condition:
+      type: night_time
+      config: {}
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.35 }
+
+  mag_crit_rate_1:
+    name: "Ojo de la noche"
+    description: "+8% prob. crítico de noche"
+    class: mage
+    material: SPYGLASS
+    prerequisites: []
+    condition:
+      type: night_time
+      config: {}
+    effect:
+      type: critical_chance
+      config: { chance: 0.08 }
+
+  mag_crit_dmg_1:
+    name: "Explosión arcana"
+    description: "+0.75 multi. crítico si baja vida"
+    class: mage
+    material: FIREWORK_STAR
+    prerequisites: []
+    condition:
+      type: low_health
+      config: { threshold: 0.30 }
+    effect:
+      type: critical_damage
+      config: { bonus: 0.75 }
+
+  mag_fire_1:
+    name: "Llamas eternas"
+    description: "+3s ígneo (cooldown 4s)"
+    class: mage
+    material: BLAZE_ROD
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: fire_aura
+      config: { duration: 3, cooldown: 4 }
+
+  mag_speed_1:
+    name: "Viento mágico"
+    description: "+15% velocidad al tener enemigos"
+    class: mage
+    material: FEATHER
+    prerequisites: []
+    condition:
+      type: close_enemies
+      config: { radius: 5.0 }
+    effect:
+      type: speed_bonus
+      config: { bonus: 0.15 }
+
+  # ════════════════════ Asesino ════════════════════
+  ass_damage_1:
+    name: "Puñalada trapera"
+    description: "+25% daño agachado"
+    class: assassin
+    material: STONE_SWORD
+    prerequisites: []
+    condition:
+      type: sneaking
+      config: {}
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.25 }
+
+  ass_damage_2:
+    name: "Golpe en la sombra"
+    description: "+45% daño agachado"
+    class: assassin
+    material: IRON_SWORD
+    prerequisites: [ass_damage_1]
+    condition:
+      type: sneaking
+      config: {}
+    effect:
+      type: damage_bonus
+      config: { bonus: 0.45 }
+
+  ass_crit_rate_1:
+    name: "Ojo crítico"
+    description: "+12% prob. crítico agachado"
+    class: assassin
+    material: SPIDER_EYE
+    prerequisites: []
+    condition:
+      type: sneaking
+      config: {}
+    effect:
+      type: critical_chance
+      config: { chance: 0.12 }
+
+  ass_crit_dmg_1:
+    name: "Degollar"
+    description: "+0.80 multi. crítico agachado"
+    class: assassin
+    material: NETHERITE_SWORD
+    prerequisites: []
+    condition:
+      type: sneaking
+      config: {}
+    effect:
+      type: critical_damage
+      config: { bonus: 0.80 }
+
+  ass_speed_1:
+    name: "Sombras veloces"
+    description: "+20% velocidad agachado"
+    class: assassin
+    material: SUGAR
+    prerequisites: []
+    condition:
+      type: sneaking
+      config: {}
+    effect:
+      type: speed_bonus
+      config: { bonus: 0.20 }
+
+  ass_lifesteal_1:
+    name: "Vampirismo"
+    description: "10% robo de vida si está herido"
+    class: assassin
+    material: FERMENTED_SPIDER_EYE
+    prerequisites: []
+    condition:
+      type: low_health
+      config: { threshold: 0.30 }
+    effect:
+      type: life_steal
+      config: { percentage: 0.10 }
