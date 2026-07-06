@@ -2,12 +2,6 @@ package org.lucma.openRPG.models.talents
 
 import org.lucma.openRPG.models.data.Modifier
 
-/**
- * Árbol de talentos global.
- *
- * Los nodos se cargan desde skills.yml vía [org.lucma.openRPG.core.SkillLoader].
- * Para escalar a 1328 skills: solo agregar entradas en ese YAML.
- */
 object SkillTree {
 
     private val allNodes = mutableMapOf<String, SkillTreeNode>()
@@ -15,12 +9,10 @@ object SkillTree {
 
     val classNodes: Map<String, List<String>> get() = classNodesMap
 
-    /** Registra un nodo */
     fun register(node: SkillTreeNode) {
         allNodes[node.id] = node
     }
 
-    /** Asigna un nodo a una clase */
     fun addToClass(classId: String, nodeId: String) {
         classNodesMap.computeIfAbsent(classId) { mutableListOf() }.add(nodeId)
     }

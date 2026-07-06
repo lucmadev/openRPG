@@ -7,7 +7,7 @@ api-version: "26.2"
 load: POSTWORLD
 
 authors: [Lucma]
-website: lucma.dev
+website: https://github.com/lucmadev
 
 commands:
   openrpg:
