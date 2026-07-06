@@ -2,6 +2,7 @@ package org.lucma.openRPG.gui
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -10,6 +11,8 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.SkullMeta
+import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.models.PlayerClass
@@ -17,7 +20,6 @@ import org.lucma.openRPG.models.PlayerClass
 object ClassSelectionGUI : Listener {
 
     private const val GUI_SIZE = 27
-    private const val GUI_TITLE = "§8Seleccionar Clase"
 
     private val classMaterials = mapOf(
         "warrior"  to Material.IRON_SWORD,
@@ -25,7 +27,6 @@ object ClassSelectionGUI : Listener {
         "assassin" to Material.NETHERITE_SWORD
     )
 
-    // Slot de cada clase en el inventario
     private val classSlots = mapOf(
         "warrior"  to 11,
         "mage"     to 13,
@@ -33,14 +34,13 @@ object ClassSelectionGUI : Listener {
     )
 
     fun open(player: Player) {
-        val inv = Bukkit.createInventory(null, GUI_SIZE, Component.text(GUI_TITLE))
+        val title = msg("gui.class_selection.title", player)
+        val inv = Bukkit.createInventory(null, GUI_SIZE, Component.text(title))
 
-        // ── Fondo ──
         for (i in 0 until GUI_SIZE) {
             inv.setItem(i, vidrio(Material.GRAY_STAINED_GLASS_PANE))
         }
 
-        // ── Clases ──
         ClassRegistry.all().forEach { clazz ->
             val slot = classSlots[clazz.id] ?: return@forEach
             val current = PlayerClassManager.getPlayerClass(player)
@@ -48,17 +48,14 @@ object ClassSelectionGUI : Listener {
             inv.setItem(slot, buildClassItem(player, clazz, isSelected))
         }
 
-        // ── Info ──
         val current = PlayerClassManager.getPlayerClass(player)
         if (current != null) {
-            inv.setItem(22, item(Material.BOOK, "§eTu clase actual: §f" + current.name, "§7Usa /talent para ver tus habilidades"))
+            inv.setItem(22, item(Material.BOOK, msg("gui.class_selection.current", player, current.name), ""))
         } else {
-            inv.setItem(22, item(Material.BARRIER, "§cSin clase asignada", "§7Selecciona una clase arriba"))
+            inv.setItem(22, item(Material.BARRIER, msg("gui.class_selection.none", player), msg("gui.class_selection.no_class_hint", player)))
         }
 
-        // ── Cerrar ──
-        inv.setItem(26, item(Material.OAK_DOOR, "§cCerrar"))
-
+        inv.setItem(26, item(Material.OAK_DOOR, msg("gui.class_selection.close", player)))
         player.openInventory(inv)
     }
 
@@ -68,30 +65,22 @@ object ClassSelectionGUI : Listener {
         val meta = item.itemMeta
 
         if (selected) {
-            val skull = meta as org.bukkit.inventory.meta.SkullMeta
+            val skull = meta as SkullMeta
             skull.setOwningPlayer(player)
-            skull.displayName(Component.text("§a§l✔ " + clazz.name).decoration(TextDecoration.ITALIC, false))
+            skull.displayName(Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false))
             skull.lore(listOf(
-                Component.text("§7Clase actual").decoration(TextDecoration.ITALIC, false),
-                Component.text("").decoration(TextDecoration.ITALIC, false),
-                Component.text("§8Ya tienes esta clase").decoration(TextDecoration.ITALIC, false)
+                Component.text(msg("class." + clazz.id + ".desc", player).replace("\\n", "\n")).decoration(TextDecoration.ITALIC, false)
             ))
             skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
             item.itemMeta = skull
             item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.UNBREAKING, 1)
         } else {
-            val name = clazz.name
-            val desc = when (clazz.id) {
-                "warrior"  -> "§7Fuerza bruta. Bonos cuerpo a cuerpo\n§7cerca de enemigos."
-                "mage"     -> "§7Poder arcano. Bonos de noche\n§7y defensa mágica."
-                "assassin" -> "§7Sigilo letal. Bonos al agacharte\n§7y robo de vida."
-                else -> "§7Una clase misteriosa..."
-            }
-            meta.displayName(Component.text("§e§l" + name).decoration(TextDecoration.ITALIC, false))
+            meta.displayName(Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false))
+            val desc = msg("class." + clazz.id + ".desc", player).replace("\\n", "\n")
             meta.lore(listOf(
                 Component.text(desc).decoration(TextDecoration.ITALIC, false),
                 Component.text("").decoration(TextDecoration.ITALIC, false),
-                Component.text("§e◆ CLIC PARA SELECCIONAR").decoration(TextDecoration.ITALIC, false)
+                Component.text(msg("gui.class_selection.select_hint", player)).decoration(TextDecoration.ITALIC, false)
             ))
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
             item.itemMeta = meta
@@ -103,39 +92,41 @@ object ClassSelectionGUI : Listener {
     @EventHandler
     fun onClick(event: InventoryClickEvent) {
         if (event.inventory !== event.view.topInventory) return
-        if (event.view.title() != Component.text(GUI_TITLE)) return
+        val titleStr = PlainTextComponentSerializer.plainText().serialize(event.view.title())
+        if (!titleStr.contains("Select") && !titleStr.contains("Seleccionar")) return
 
         event.isCancelled = true
         val player = event.whoClicked as? Player ?: return
-        val slot = event.rawSlot
 
-        // Cerrar
-        if (slot == 26) {
+        if (event.rawSlot == 26) {
             player.closeInventory()
             return
         }
 
-        // Ver si el slot corresponde a una clase
-        val classId = classSlots.entries.firstOrNull { it.value == slot }?.key ?: return
+        val classId = classSlots.entries.firstOrNull { it.value == event.rawSlot }?.key ?: return
         val clazz = ClassRegistry.get(classId) ?: return
 
         val current = PlayerClassManager.getPlayerClass(player)
         if (current?.id == classId) {
-            player.sendActionBar(Component.text("§e✔ Ya tienes esta clase"))
+            player.sendActionBar(Component.text(msg("gui.class_selection.already_have", player)))
             return
         }
 
         PlayerClassManager.setPlayerClass(player, clazz)
-        player.sendActionBar(Component.text("§aClase asignada: §e" + clazz.name))
+        player.sendActionBar(Component.text(msg("gui.class_selection.assigned", player, clazz.name)))
         player.closeInventory()
-        open(player) // reabrir con checkmark actualizado
+        open(player)
     }
 
     private fun item(mat: Material, name: String, vararg lore: String): ItemStack {
         val item = ItemStack(mat)
         val meta = item.itemMeta
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
-        meta.lore(lore.map { Component.text(it).decoration(TextDecoration.ITALIC, false) })
+        val loreList = java.util.ArrayList<Component>()
+        for (line in lore) {
+            loreList.add(Component.text(line).decoration(TextDecoration.ITALIC, false))
+        }
+        meta.lore(loreList)
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         item.itemMeta = meta
         return item

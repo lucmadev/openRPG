@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.lucma.openRPG.api.OpenRPGAPI
 import org.lucma.openRPG.api.OpenRPGAPIImpl
+import org.lucma.openRPG.core.LanguageManager
 import org.lucma.openRPG.commands.AssignClass
 import org.lucma.openRPG.commands.RPGCommand
 import org.lucma.openRPG.commands.TalentCommand
@@ -28,6 +29,9 @@ class OpenRPG : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
+
+        // ── Language ──
+        LanguageManager.init(this)
 
         // ── Registries ──
         ClassRegistry.register(Warrior())

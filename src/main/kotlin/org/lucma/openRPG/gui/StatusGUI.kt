@@ -2,6 +2,7 @@ package org.lucma.openRPG.gui
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -11,92 +12,71 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
+import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
-import org.lucma.openRPG.models.conditions.CloseEnemiesCondition
-import org.lucma.openRPG.models.conditions.LowHealthCondition
-import org.lucma.openRPG.models.conditions.NightTimeCondition
-import org.lucma.openRPG.models.conditions.SneakingCondition
-import org.lucma.openRPG.models.effects.CriticalChanceEffect
-import org.lucma.openRPG.models.effects.CriticalDamageEffect
-import org.lucma.openRPG.models.effects.DamageBonusEffect
-import org.lucma.openRPG.models.effects.DefenseBonusEffect
-import org.lucma.openRPG.models.effects.FireAuraEffect
-import org.lucma.openRPG.models.effects.HealEffect
-import org.lucma.openRPG.models.effects.LifeStealEffect
-import org.lucma.openRPG.models.effects.SpeedBonusEffect
 import org.lucma.openRPG.models.talents.SkillTree
 import org.lucma.openRPG.models.types.Effect
+import org.lucma.openRPG.models.effects.*
+import org.lucma.openRPG.models.conditions.*
 import kotlin.math.roundToInt
 
 object StatusGUI : Listener {
 
     private const val GUI_SIZE = 36
-    private const val GUI_TITLE = "§8Estado RPG"
 
     fun open(player: Player) {
+        val title = msg("gui.status.title", player)
         val clazz = PlayerClassManager.getPlayerClass(player)
         val data = PlayerDataManager.getOrCreate(player)
-        val inv = Bukkit.createInventory(null, GUI_SIZE, Component.text(GUI_TITLE))
+        val inv = Bukkit.createInventory(null, GUI_SIZE, Component.text(title))
 
-        // ── Fondo ──
         for (i in 0 until GUI_SIZE) {
             inv.setItem(i, vidrio(Material.BLACK_STAINED_GLASS_PANE))
         }
 
         if (clazz == null) {
-            // Sin clase
-            inv.setItem(4, item(Material.BARRIER, "§c§lSIN CLASE", "§7Usa /class para seleccionar una"))
-            inv.setItem(22, item(Material.ENDER_CHEST, "§eSeleccionar clase", "§7◆ CLIC para abrir"))
-            inv.setItem(31, item(Material.OAK_DOOR, "§cCerrar"))
+            inv.setItem(4, item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player)))
+            inv.setItem(22, item(Material.ENDER_CHEST, msg("gui.status.select_class", player), msg("gui.status.select_class", player)))
+            inv.setItem(31, item(Material.OAK_DOOR, msg("gui.status.close", player)))
             player.openInventory(inv)
             return
         }
 
-        // ════════════ Fila 1: info general ════════════
-        // Cabeza del jugador con clase
+        // ── Fila 1: info general ──
         val head = ItemStack(Material.PLAYER_HEAD)
         val headMeta = head.itemMeta as SkullMeta
         headMeta.setOwningPlayer(player)
-        headMeta.displayName(Component.text("§e§l" + clazz.name).decoration(TextDecoration.ITALIC, false))
-        headMeta.lore(listOf(
-            Component.text("§7" + player.getName()).decoration(TextDecoration.ITALIC, false)
-        ))
+        headMeta.displayName(Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false))
+        headMeta.lore(listOf(Component.text("§7" + player.getName()).decoration(TextDecoration.ITALIC, false)))
         headMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         head.itemMeta = headMeta
         inv.setItem(0, head)
 
-        // Nivel
-        inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, "§eNivel §f" + data.level, "§7" + data.exp + "§8/§7" + data.expToNextLevel + " §7EXP"))
+        inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, msg("gui.status.level", player, data.level), msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)))
 
-        // Barra EXP como mapa
         val pct = (data.exp.toDouble() / data.expToNextLevel.toDouble()).coerceIn(0.0, 1.0)
         val barra = "§a" + "|".repeat((pct * 20).toInt()) + "§8" + "|".repeat(20 - (pct * 20).toInt())
-        inv.setItem(4, item(Material.FILLED_MAP, "§7Progreso", barra, "§7" + (pct * 100).toInt() + "% al nivel " + (data.level + 1)))
+        inv.setItem(4, item(Material.FILLED_MAP, msg("gui.status.exp_progress", player), barra, msg("gui.status.exp_bar", player, (pct * 100).toInt(), data.level + 1)))
 
-        // Puntos de talento
-        inv.setItem(6, item(Material.EMERALD, "§e" + data.talentPoints + " §ePuntos de talento", "§7◆ CLIC para abrir árbol"))
+        inv.setItem(6, item(Material.EMERALD, msg("gui.status.talent_points", player, data.talentPoints)))
+        inv.setItem(8, item(Material.OAK_DOOR, msg("gui.status.close", player)))
 
-        // Cerrar
-        inv.setItem(8, item(Material.OAK_DOOR, "§cCerrar"))
+        // ── Fila 2: Stats ──
+        inv.setItem(9,  item(Material.RED_DYE,      msg("gui.status.stats_damage", player),       msg("gui.status.stats_multiplier", player, "1.00")))
+        inv.setItem(11, item(Material.BLUE_DYE,     msg("gui.status.stats_defense", player),      msg("gui.status.stats_multiplier", player, "1.00")))
+        inv.setItem(13, item(Material.WHITE_DYE,    msg("gui.status.stats_speed", player),        msg("gui.status.stats_multiplier", player, "1.00")))
+        inv.setItem(15, item(Material.ORANGE_DYE,   msg("gui.status.stats_crit", player),         msg("gui.status.stats_crit_chance", player, "0")))
+        inv.setItem(17, item(Material.YELLOW_DYE,   msg("gui.status.stats_crit_multi", player),   msg("gui.status.stats_multiplier", player, "1.0")))
 
-        // ════════════ Fila 2: Stats ════════════
-        inv.setItem(9,  item(Material.RED_DYE,      "§cDaño",      "§7Multiplicador: §fx" + String.format("%.2f", 1.0))) // base sin aplicar
-        inv.setItem(11, item(Material.BLUE_DYE,     "§9Defensa",   "§7Multiplicador: §fx" + String.format("%.2f", 1.0)))
-        inv.setItem(13, item(Material.WHITE_DYE,    "§fVelocidad", "§7Multiplicador: §fx" + String.format("%.2f", 1.0)))
-        inv.setItem(15, item(Material.ORANGE_DYE,   "§6Crítico",   "§7Probabilidad: §e" + (0.0 * 100).roundToInt() + "%"))
-        inv.setItem(17, item(Material.YELLOW_DYE,   "§eMulti crítico", "§7Multiplicador: §fx" + String.format("%.1f", 1.0)))
-
-        // ════════════ Fila 3: Modificadores activos ════════════
+        // ── Fila 3: Modificadores activos ──
         var slot = 18
-        // Modifiers de clase
         for (mod in clazz.modifiers) {
             if (slot >= 26) break
-            val desc = describeEffect(mod.effect) + " §8→ §7" + describeCondition(mod.condition)
-            inv.setItem(slot, item(Material.ENCHANTED_BOOK, "§eModificador", desc))
+            val desc = describeEffect(mod.effect, player) + " §8→ §7" + describeCondition(mod.condition, player)
+            inv.setItem(slot, item(Material.ENCHANTED_BOOK, msg("gui.status.modifier", player), desc))
             slot++
         }
-        // Modifiers de talentos desbloqueados
         if (data.unlockedNodes.isNotEmpty()) {
             if (slot < 26) {
                 inv.setItem(slot, vidrio(Material.GRAY_STAINED_GLASS_PANE))
@@ -105,21 +85,20 @@ object StatusGUI : Listener {
             val talentMods = SkillTree.getModifiers(data.unlockedNodes)
             for (mod in talentMods) {
                 if (slot >= 26) break
-                val desc = describeEffect(mod.effect) + " §8→ §7" + describeCondition(mod.condition)
-                inv.setItem(slot, item(Material.LIME_DYE, "§a✔ Talento", desc))
+                val desc = describeEffect(mod.effect, player) + " §8→ §7" + describeCondition(mod.condition, player)
+                inv.setItem(slot, item(Material.LIME_DYE, msg("gui.status.talent_unlocked", player), desc))
                 slot++
             }
         }
-        // Rellenar resto de fila
         while (slot < 26) {
             inv.setItem(slot, vidrio(Material.BLACK_STAINED_GLASS_PANE))
             slot++
         }
 
-        // ════════════ Fila 4: Botones ════════════
-        inv.setItem(27, item(Material.ENDER_CHEST, "§eCambiar clase", "§7◆ CLIC para cambiar"))
-        inv.setItem(31, item(Material.EMERALD_BLOCK, "§eÁrbol de talentos", "§7◆ CLIC para abrir"))
-        inv.setItem(35, item(Material.OAK_DOOR, "§cCerrar"))
+        // ── Fila 4: Botones ──
+        inv.setItem(27, item(Material.ENDER_CHEST, msg("gui.status.btn_change_class", player)))
+        inv.setItem(31, item(Material.EMERALD_BLOCK, msg("gui.status.btn_talent_tree", player)))
+        inv.setItem(35, item(Material.OAK_DOOR, msg("gui.status.close", player)))
 
         player.openInventory(inv)
     }
@@ -127,40 +106,39 @@ object StatusGUI : Listener {
     @EventHandler
     fun onClick(event: InventoryClickEvent) {
         if (event.inventory !== event.view.topInventory) return
-        if (event.view.title() != Component.text(GUI_TITLE)) return
+        val titleStr = PlainTextComponentSerializer.plainText().serialize(event.view.title())
+        if (!titleStr.contains("Estado") && !titleStr.contains("Status") && !titleStr.contains("RPG")) return
 
         event.isCancelled = true
         val player = event.whoClicked as? Player ?: return
 
         when (event.rawSlot) {
-            8, 35 -> player.closeInventory()                  // Cerrar
-            6, 31 -> { player.closeInventory(); TalentGUI.open(player) }  // Árbol talentos
-            22, 27 -> { player.closeInventory(); ClassSelectionGUI.open(player) }  // Cambiar clase
+            8, 35 -> player.closeInventory()
+            6, 31 -> { player.closeInventory(); TalentGUI.open(player) }
+            22, 27 -> { player.closeInventory(); ClassSelectionGUI.open(player) }
         }
     }
 
-    // ── Helpers de descripción (copia de RPGCommand) ──
-
-    private fun describeCondition(condition: Any): String {
-        return when (condition) {
-            is CloseEnemiesCondition -> "cerca de enemigos"
-            is NightTimeCondition -> "de noche"
-            is LowHealthCondition -> "vida < " + (condition.thresholdPercentage * 100).roundToInt() + "%"
-            is SneakingCondition -> "agachado"
-            else -> condition::class.simpleName ?: "?"
+    private fun describeCondition(cond: Any, player: Player): String {
+        return when (cond) {
+            is CloseEnemiesCondition -> msg("condition.close_enemies", player)
+            is NightTimeCondition -> msg("condition.night_time", player)
+            is LowHealthCondition -> msg("condition.low_health", player, (cond.thresholdPercentage * 100).roundToInt())
+            is SneakingCondition -> msg("condition.sneaking", player)
+            else -> cond::class.simpleName ?: "?"
         }
     }
 
-    private fun describeEffect(effect: Effect): String {
+    private fun describeEffect(effect: Effect, player: Player): String {
         return when (effect) {
-            is DamageBonusEffect -> "§a+" + (effect.bonus * 100).roundToInt() + "% daño"
-            is DefenseBonusEffect -> "§b+" + (effect.bonus * 100).roundToInt() + "% defensa"
-            is SpeedBonusEffect -> "§a+" + (effect.bonus * 100).roundToInt() + "% velocidad"
-            is HealEffect -> "§c❤ +" + effect.amount + " vida"
-            is LifeStealEffect -> "§d" + (effect.stealPercentage * 100).roundToInt() + "% robo vida"
-            is FireAuraEffect -> "§6🔥 " + effect.duration + "s ígneo"
-            is CriticalChanceEffect -> "§e+" + (effect.chance * 100).roundToInt() + "% prob. crítico"
-            is CriticalDamageEffect -> "§e+" + (effect.bonus * 100).roundToInt() + "% daño crítico"
+            is DamageBonusEffect -> msg("effect.damage_bonus", player, (effect.bonus * 100).roundToInt())
+            is DefenseBonusEffect -> msg("effect.defense_bonus", player, (effect.bonus * 100).roundToInt())
+            is SpeedBonusEffect -> msg("effect.speed_bonus", player, (effect.bonus * 100).roundToInt())
+            is HealEffect -> msg("effect.heal", player, effect.amount)
+            is LifeStealEffect -> msg("effect.life_steal", player, (effect.stealPercentage * 100).roundToInt())
+            is FireAuraEffect -> msg("effect.fire_aura", player, effect.duration)
+            is CriticalChanceEffect -> msg("effect.crit_chance", player, (effect.chance * 100).roundToInt())
+            is CriticalDamageEffect -> msg("effect.crit_damage", player, (effect.bonus * 100).roundToInt())
             else -> "§f" + (effect::class.simpleName ?: "?")
         }
     }
@@ -169,7 +147,11 @@ object StatusGUI : Listener {
         val item = ItemStack(mat)
         val meta = item.itemMeta
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
-        meta.lore(lore.map { Component.text(it).decoration(TextDecoration.ITALIC, false) })
+        val loreList = java.util.ArrayList<Component>()
+        for (line in lore) {
+            loreList.add(Component.text(line).decoration(TextDecoration.ITALIC, false))
+        }
+        meta.lore(loreList)
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         item.itemMeta = meta
         return item

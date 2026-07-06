@@ -4,10 +4,10 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.attribute.Attribute
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
+import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 
@@ -20,31 +20,27 @@ object ExpListener : Listener {
     fun onEntityDeath(event: EntityDeathEvent) {
         try {
             val killer = event.entity.killer ?: return
-
-            // Sin clase = no gana EXP
             val clazz = PlayerClassManager.getPlayerClass(killer)
             if (clazz == null) return
 
             val exp = calculateExp(event)
             if (exp <= 0) return
 
-            Bukkit.getLogger().fine("[openRPG] EXP: " + killer.getName() + " +" + exp + " por " + event.entity.type.name)
-
             val leveledUp = PlayerDataManager.addExp(killer, exp)
             val data = PlayerDataManager.getOrCreate(killer)
 
             if (leveledUp) {
                 killer.sendMessage(
-                    Component.text(" §6§l¡SUBISTE A NIVEL " + data.level + "!")
+                    Component.text(msg("exp.level_up", killer, data.level))
                         .color(colorLevel)
-                        .append(Component.text(" §7(Tienes §e" + data.talentPoints + "§7 puntos de talento)")
+                        .append(Component.text(" " + msg("exp.talent_points_hint", killer, data.talentPoints))
                             .color(TextColor.color(0xAAAAAA)))
                 )
             } else {
                 killer.sendActionBar(
-                    Component.text(" +" + exp + " EXP")
+                    Component.text(msg("exp.gained", killer, exp))
                         .color(colorExp)
-                        .append(Component.text(" §8[§7" + data.exp + "§8/§7" + data.expToNextLevel + "§8]")
+                        .append(Component.text(" " + msg("exp.bar_format", killer, data.exp, data.expToNextLevel))
                             .color(TextColor.color(0x888888)))
                 )
             }
@@ -56,15 +52,13 @@ object ExpListener : Listener {
     }
 
     private fun calculateExp(event: EntityDeathEvent): Int {
-        val entity = event.entity
-        val maxHealth = entity.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
-
+        val maxHealth = event.entity.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
         return when {
-            maxHealth >= 200 -> 50   // bosses
-            maxHealth >= 80  -> 25   // mobs fuertes
-            maxHealth >= 40  -> 15   // mobs medios
-            maxHealth >= 10  -> 8    // mobs básicos
-            else -> 3                // criaturas pasivas
+            maxHealth >= 200 -> 50
+            maxHealth >= 80  -> 25
+            maxHealth >= 40  -> 15
+            maxHealth >= 10  -> 8
+            else -> 3
         }
     }
 }

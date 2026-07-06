@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.lucma.openRPG.core.EventDispatcher
+import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.PlayerStats
 import kotlin.math.roundToInt
@@ -21,29 +22,16 @@ class DamageListener : Listener {
     @EventHandler
     fun onDamage(event: EntityDamageByEntityEvent) {
         try {
-            val player = event.damager as? Player
-            if (player == null) {
-                Bukkit.getLogger().fine("[openRPG] damager no es un Player: " + event.damager)
-                return
-            }
+            val player = event.damager as? Player ?: return
 
-            val playerName = serializer.serialize(player.name())
             val baseDmg = event.damage
-            val entType = event.entity.type.name
-            Bukkit.getLogger().fine("[openRPG] DamageEvent | damager=" + playerName + " | entidad=" + entType + " | base=" + baseDmg)
+            Bukkit.getLogger().fine("[openRPG] DamageEvent | damager=" + player.getName() + " | base=" + baseDmg)
 
-            val context = EffectContext(
-                player = player,
-                event = event,
-                stats = PlayerStats()
-            )
-
+            val context = EffectContext(player, event, PlayerStats())
             EventDispatcher.dispatch(context)
 
-            // ── Multiplicador de daño base ──
             event.damage *= context.stats.damageMultiplier
 
-            // ── Golpe crítico ──
             var wasCrit = false
             if (context.stats.critChance > 0.0 && Random.nextDouble() < context.stats.critChance) {
                 event.damage *= context.stats.critMultiplier
@@ -56,9 +44,6 @@ class DamageListener : Listener {
             val finalDamage = event.damage
             val mult = context.stats.damageMultiplier
 
-            Bukkit.getLogger().fine("[openRPG] DamageResult | entidad=" + entityName + " | final=" + finalDamage + " | mult=" + mult + " | crit=" + wasCrit)
-
-            // ── Action Bar ──
             val bar = Component.text(" $entityName ")
                 .color(TextColor.color(0xAAAAAA))
                 .append(
@@ -67,18 +52,17 @@ class DamageListener : Listener {
                 )
                 .append(
                     when {
-                        wasCrit -> Component.text(" ✦CRÍTICO✦")
+                        wasCrit -> Component.text(" " + msg("damage.critical"))
                             .color(TextColor.color(0xFFAA00))
-                        mult != 1.0 -> Component.text(" (x" + String.format("%.2f", mult) + ")")
+                        mult != 1.0 -> Component.text(" (" + msg("damage.format", player, String.format("%.2f", mult)) + ")")
                             .color(TextColor.color(0xFFAA55))
                         else -> Component.empty()
                     }
                 )
 
             if (wasCrit && context.stats.critMultiplier != 1.0) {
-                val critMult = context.stats.critMultiplier
                 bar.append(
-                    Component.text(" (x" + String.format("%.1f", critMult) + ")")
+                    Component.text(" (" + msg("damage.format", player, String.format("%.1f", context.stats.critMultiplier)) + ")")
                         .color(TextColor.color(0xFFAA00))
                 )
             }
@@ -86,7 +70,7 @@ class DamageListener : Listener {
             player.sendActionBar(bar)
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en DamageListener: " + ex.javaClass.simpleName + ": " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error en DamageListener: " + ex.message)
             ex.printStackTrace()
         }
     }
