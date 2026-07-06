@@ -1,0 +1,27 @@
+name: openRPG
+version: "${version}"
+
+main: org.lucma.openRPG.OpenRPG
+paperPluginLoader: org.lucma.openRPG.OpenRPGLoader
+api-version: "26.2"
+load: POSTWORLD
+
+authors: [Lucma]
+website: lucma.dev
+
+commands:
+  assignclass:
+    description: Asigna una clase RPG a tu jugador
+    usage: /<command> <clase>
+    aliases: [class, clase]
+  rpg:
+    description: Comando principal de openRPG
+    usage: |
+      /<command> status - Muestra tu estado actual
+    aliases: [pg, stats]
+  talent:
+    description: Árbol de talentos
+    usage: |
+      /<command> view - Ver árbol
+      /<command> allocate <id> - Aprender talento
+    aliases: [talento, talents, skill]
