@@ -4,10 +4,8 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.lucma.openRPG.api.OpenRPGAPI
 import org.lucma.openRPG.api.OpenRPGAPIImpl
+import org.lucma.openRPG.commands.OpenRPGCommand
 import org.lucma.openRPG.core.LanguageManager
-import org.lucma.openRPG.commands.AssignClass
-import org.lucma.openRPG.commands.RPGCommand
-import org.lucma.openRPG.commands.TalentCommand
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.core.registry.ConditionRegistry
 import org.lucma.openRPG.core.registry.EffectRegistry
@@ -51,12 +49,8 @@ class OpenRPG : JavaPlugin() {
         server.pluginManager.registerEvents(StatusGUI, this)
 
         // ── Commands ──
-        getCommand("assignclass")?.setExecutor(AssignClass())
-            ?: logger.warning("No se pudo registrar /assignclass")
-        getCommand("rpg")?.setExecutor(RPGCommand())
-            ?: logger.warning("No se pudo registrar /rpg")
-        getCommand("talent")?.setExecutor(TalentCommand())
-            ?: logger.warning("No se pudo registrar /talent")
+        getCommand("openrpg")?.setExecutor(OpenRPGCommand())
+            ?: logger.warning("No se pudo registrar /openrpg")
 
         // ── API ──
         Bukkit.getServicesManager().register(OpenRPGAPI::class.java, OpenRPGAPIImpl(), this, org.bukkit.plugin.ServicePriority.Normal)

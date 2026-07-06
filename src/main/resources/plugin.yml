@@ -10,18 +10,11 @@ authors: [Lucma]
 website: lucma.dev
 
 commands:
-  assignclass:
-    description: Asigna una clase RPG a tu jugador
-    usage: /<command> <clase>
-    aliases: [class, clase]
-  rpg:
+  openrpg:
     description: Comando principal de openRPG
     usage: |
-      /<command> status - Muestra tu estado actual
-    aliases: [pg, stats]
-  talent:
-    description: Árbol de talentos
-    usage: |
-      /<command> view - Ver árbol
-      /<command> allocate <id> - Aprender talento
-    aliases: [talento, talents, skill]
+      /<command> - Ayuda
+      /<command> status - Estado del jugador
+      /<command> class [id] - Seleccionar clase
+      /<command> talent - Árbol de talentos
+    aliases: [rpg, pg, class, clase, talent, talento, stats, skill]
