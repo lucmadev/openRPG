@@ -4,6 +4,8 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
+import org.bukkit.attribute.Attribute
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -24,8 +26,7 @@ class DamageListener : Listener {
         try {
             val player = event.damager as? Player ?: return
 
-            val baseDmg = event.damage
-            Bukkit.getLogger().fine("[openRPG] DamageEvent | damager=" + player.getName() + " | base=" + baseDmg)
+            Bukkit.getLogger().fine("[openRPG] DamageEvent | damager=" + player.getName() + " | base=" + event.damage)
 
             val context = EffectContext(player, event, PlayerStats())
             EventDispatcher.dispatch(context)
@@ -41,30 +42,29 @@ class DamageListener : Listener {
             val entityName = serializer.serialize(
                 event.entity.customName() ?: event.entity.name()
             )
+
+            // ── Vida actual / total de la entidad ──
+            val entityHealth = if (event.entity is LivingEntity) {
+                val living = event.entity as LivingEntity
+                val cur = living.health
+                val max = living.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+                "${cur.roundToInt()}/${max.roundToInt()}"
+            } else {
+                "?"
+            }
+
             val finalDamage = event.damage
-            val mult = context.stats.damageMultiplier
+            val dmgColor = if (wasCrit) TextColor.color(0xFFAA00) else TextColor.color(0xFF5555)
 
-            val bar = Component.text(" $entityName ")
-                .color(TextColor.color(0xAAAAAA))
-                .append(
-                    Component.text("❤ " + finalDamage.roundToInt())
-                        .color(if (wasCrit) TextColor.color(0xFFAA00) else TextColor.color(0xFF5555))
-                )
-                .append(
-                    when {
-                        wasCrit -> Component.text(" " + msg("damage.critical"))
-                            .color(TextColor.color(0xFFAA00))
-                        mult != 1.0 -> Component.text(" (" + msg("damage.format", player, String.format("%.2f", mult)) + ")")
-                            .color(TextColor.color(0xFFAA55))
-                        else -> Component.empty()
-                    }
-                )
+            val bar = Component.text(" ")
+                .append(Component.text(entityName).color(TextColor.color(0xAAAAAA)))
+                .append(Component.text(": ").color(TextColor.color(0xAAAAAA)))
+                .append(Component.text(entityHealth).color(TextColor.color(0xFFAA55)))
+                .append(Component.text("   ").color(TextColor.color(0x888888)))
+                .append(Component.text("❤ " + finalDamage.roundToInt()).color(dmgColor))
 
-            if (wasCrit && context.stats.critMultiplier != 1.0) {
-                bar.append(
-                    Component.text(" (" + msg("damage.format", player, String.format("%.1f", context.stats.critMultiplier)) + ")")
-                        .color(TextColor.color(0xFFAA00))
-                )
+            if (wasCrit) {
+                bar.append(Component.text(" " + msg("damage.critical")).color(TextColor.color(0xFFAA00)))
             }
 
             player.sendActionBar(bar)
