@@ -1,0 +1,44 @@
+# ───────────────────────────────────────────────
+#  openRPG — Árbol de talentos (skills.yml)
+# ───────────────────────────────────────────────
+#  Para escalar a 1328 skills: solo agregar
+#  entradas aquí. No hace falta recompilar.
+#
+#  Formato de cada skill:
+#
+#   <id>:
+#     name: <nombre visible>
+#     description: "<descripción>"
+#     class: warrior|mage|assassin
+#     material: MATERIAL_BUKKIT
+#     x: <columna>      # opcional, para GUI
+#     y: <fila>          # opcional, para GUI
+#     prerequisites:
+#       - <id_de_skill_requerido>
+#     condition:
+#       type: <id_del_registro_de_condición>
+#       config:
+#         <param>: <valor>
+#     effect:
+#       type: <id_del_registro_de_efecto>
+#       config:
+#         <param>: <valor>
+#
+#  Tipos de condición disponibles:
+#    close_enemies  (config: radius)
+#    low_health     (config: threshold)
+#    night_time     (sin config)
+#    sneaking       (sin config)
+#
+#  Tipos de efecto disponibles:
+#    damage_bonus   (config: bonus)
+#    defense_bonus  (config: bonus)
+#    speed_bonus    (config: bonus)
+#    heal           (config: amount)
+#    life_steal     (config: percentage)
+#    fire_aura      (config: duration, cooldown)
+#    critical_chance(config: chance)
+#    critical_damage(config: bonus)
+# ───────────────────────────────────────────────
+
+skills: {}

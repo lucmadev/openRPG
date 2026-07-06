@@ -6,6 +6,7 @@ import org.lucma.openRPG.api.OpenRPGAPI
 import org.lucma.openRPG.api.OpenRPGAPIImpl
 import org.lucma.openRPG.commands.OpenRPGCommand
 import org.lucma.openRPG.core.LanguageManager
+import org.lucma.openRPG.core.SkillLoader
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.core.registry.ConditionRegistry
 import org.lucma.openRPG.core.registry.EffectRegistry
@@ -38,6 +39,9 @@ class OpenRPG : JavaPlugin() {
         ConditionRegistry.registerDefaults()
         EffectRegistry.registerDefaults()
         StatRegistry.registerDefaults()
+
+        // ── Skills (desde YAML) ──
+        SkillLoader.load(this)
 
         // ── Listeners ──
         server.pluginManager.registerEvents(DamageListener(), this)
