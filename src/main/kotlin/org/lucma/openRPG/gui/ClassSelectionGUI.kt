@@ -3,6 +3,8 @@ package org.lucma.openRPG.gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.attribute.Attribute
+import kotlin.math.roundToInt
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -68,9 +70,14 @@ object ClassSelectionGUI : Listener {
             val skull = meta as SkullMeta
             skull.setOwningPlayer(player)
             skull.displayName(Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false))
+            val maxHp = player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20
             skull.lore(listOf(
-                Component.text(msg("class." + clazz.id + ".desc", player).replace("\\n", "\n")).decoration(TextDecoration.ITALIC, false)
-            ))
+            Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+            Component.text("").decoration(TextDecoration.ITALIC, false),
+            Component.text("§c❤ §7" + player.health.roundToInt() + "§8/§c" + maxHp).decoration(TextDecoration.ITALIC, false),
+            Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
+            Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+        ))
             skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
             item.itemMeta = skull
             item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.UNBREAKING, 1)

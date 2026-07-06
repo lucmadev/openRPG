@@ -3,6 +3,8 @@ package org.lucma.openRPG.gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.attribute.Attribute
+import kotlin.math.roundToInt
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -196,8 +198,15 @@ object TalentGUI : Listener {
     private fun itemHead(player: Player, name: String): ItemStack {
         val item = ItemStack(Material.PLAYER_HEAD)
         val meta = item.itemMeta as SkullMeta
-        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
         meta.setOwningPlayer(player)
+        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
+        meta.lore(listOf(
+            Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+            Component.text("").decoration(TextDecoration.ITALIC, false),
+            Component.text("§c❤ §7" + player.health.roundToInt() + "§8/§c" + (player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20)).decoration(TextDecoration.ITALIC, false),
+            Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
+            Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+        ))
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         item.itemMeta = meta
         return item

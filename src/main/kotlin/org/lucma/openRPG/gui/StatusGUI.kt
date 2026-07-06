@@ -3,6 +3,7 @@ package org.lucma.openRPG.gui
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import org.bukkit.attribute.Attribute
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -44,15 +45,7 @@ object StatusGUI : Listener {
         }
 
         // ── Fila 1: info general ──
-        val head = ItemStack(Material.PLAYER_HEAD)
-        val headMeta = head.itemMeta as SkullMeta
-        headMeta.setOwningPlayer(player)
-        headMeta.displayName(Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false))
-        headMeta.lore(listOf(Component.text("§7" + player.getName()).decoration(TextDecoration.ITALIC, false)))
-        headMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-        head.itemMeta = headMeta
-        inv.setItem(0, head)
-
+        inv.setItem(0, buildPlayerHead(player, clazz.name))
         inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, msg("gui.status.level", player, data.level), msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)))
 
         val pct = (data.exp.toDouble() / data.expToNextLevel.toDouble()).coerceIn(0.0, 1.0)
@@ -103,6 +96,30 @@ object StatusGUI : Listener {
         player.openInventory(inv)
     }
 
+    /** Construye la cabeza del jugador con sus stats en el lore */
+    private fun buildPlayerHead(player: Player, className: String): ItemStack {
+        val item = ItemStack(Material.PLAYER_HEAD)
+        val meta = item.itemMeta as SkullMeta
+        meta.setOwningPlayer(player)
+        meta.displayName(Component.text("§e§l" + className).decoration(TextDecoration.ITALIC, false))
+
+        val maxHp = player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20
+        val health = "${player.health.roundToInt()}§8/§c$maxHp"
+        val hunger = "${player.foodLevel}§8/§6${20}"
+        val xp = player.level
+
+        meta.lore(listOf(
+            Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+            Component.text("").decoration(TextDecoration.ITALIC, false),
+            Component.text("§c❤ §7" + health).decoration(TextDecoration.ITALIC, false),
+            Component.text("§6🍗 §7" + hunger).decoration(TextDecoration.ITALIC, false),
+            Component.text("§b✦ §7Nivel §f" + xp).decoration(TextDecoration.ITALIC, false)
+        ))
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+        item.itemMeta = meta
+        return item
+    }
+
     @EventHandler
     fun onClick(event: InventoryClickEvent) {
         if (event.inventory !== event.view.topInventory) return
@@ -148,9 +165,7 @@ object StatusGUI : Listener {
         val meta = item.itemMeta
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
         val loreList = java.util.ArrayList<Component>()
-        for (line in lore) {
-            loreList.add(Component.text(line).decoration(TextDecoration.ITALIC, false))
-        }
+        for (line in lore) loreList.add(Component.text(line).decoration(TextDecoration.ITALIC, false))
         meta.lore(loreList)
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         item.itemMeta = meta
