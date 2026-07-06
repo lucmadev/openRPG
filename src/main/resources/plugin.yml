@@ -17,4 +17,3 @@ commands:
       /<command> status - Estado del jugador
       /<command> class [id] - Seleccionar clase
       /<command> talent - Árbol de talentos
-    aliases: [rpg, pg, class, clase, talent, talento, stats, skill]
