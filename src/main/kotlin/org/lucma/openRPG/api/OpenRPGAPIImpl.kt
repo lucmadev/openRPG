@@ -10,11 +10,14 @@ import org.lucma.openRPG.core.registry.EffectRegistry
 import org.lucma.openRPG.core.registry.StatRegistry
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
+import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
 import org.lucma.openRPG.models.data.PlayerData
 import org.lucma.openRPG.models.data.PlayerStats
+import org.lucma.openRPG.models.talents.SkillTree
+import org.lucma.openRPG.models.talents.SkillTreeNode
 import org.lucma.openRPG.models.types.Condition
 import org.lucma.openRPG.models.types.Effect
 
@@ -98,4 +101,41 @@ class OpenRPGAPIImpl : OpenRPGAPI {
 
     override fun context(player: Player, event: Event): EffectContext =
         EffectContext(player, event, PlayerStats())
+
+    // ════════════════════════ Skills ════════════════════════
+
+    override fun registerSkill(node: SkillTreeNode) {
+        SkillTree.register(node)
+        Bukkit.getLogger().info("[openRPG-API] Skill registrado: " + node.id + " (" + node.name + ")")
+    }
+
+    override fun registerSkill(
+        id: String,
+        name: String,
+        description: String,
+        className: String,
+        condition: Condition,
+        effect: Effect,
+        material: Material,
+        prerequisites: List<String>
+    ) {
+        val node = SkillTreeNode(id, name, description, Modifier(condition, effect), material, prerequisites)
+        SkillTree.register(node)
+        SkillTree.addToClass(className, id)
+        Bukkit.getLogger().info("[openRPG-API] Skill registrado: $id ($name) para clase $className")
+    }
+
+    override fun getSkill(id: String): SkillTreeNode? = SkillTree.getNode(id)
+
+    override fun getSkills(): Collection<SkillTreeNode> = SkillTree.allNodes.values
+
+    override fun getSkillsForClass(className: String): List<SkillTreeNode> =
+        SkillTree.getNodesForClass(className)
+
+    override fun canUnlockSkill(player: Player, nodeId: String): SkillTree.CanUnlockResult {
+        val data = PlayerDataManager.get(player) ?: return SkillTree.CanUnlockResult(false, "Jugador no encontrado")
+        return SkillTree.canUnlock(nodeId, data.unlockedNodes)
+    }
+
+    override fun getSkillTree(): SkillTree = SkillTree
 }

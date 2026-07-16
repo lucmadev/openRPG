@@ -2,11 +2,14 @@ package org.lucma.openRPG.api
 
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
+import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
 import org.lucma.openRPG.models.data.PlayerData
 import org.lucma.openRPG.models.data.PlayerStats
+import org.lucma.openRPG.models.talents.SkillTree
+import org.lucma.openRPG.models.talents.SkillTreeNode
 import org.lucma.openRPG.models.types.Condition
 import org.lucma.openRPG.models.types.Effect
 
@@ -103,4 +106,59 @@ interface OpenRPGAPI {
 
     /** Crea un EffectContext para usar con applyModifiers */
     fun context(player: Player, event: Event): EffectContext
+
+    // ═══════════════════════════════════════════
+    //  Skills (talentos)
+    // ═══════════════════════════════════════════
+
+    /**
+     * Registra un skill/talento programáticamente.
+     * Útil para plugins que quieran añadir nodos al árbol de talentos
+     * sin usar skills.yml.
+     *
+     * @param node El SkillTreeNode a registrar
+     */
+    fun registerSkill(node: SkillTreeNode)
+
+    /**
+     * Registra un skill/talento desde sus componentes.
+     * Versión simplificada que construye el SkillTreeNode internamente.
+     *
+     * @param id Identificador único del skill
+     * @param name Nombre visible
+     * @param description Descripción
+     * @param className Clase a la que pertenece ("warrior", "mage", "assassin", o una clase registrada)
+     * @param condition La condición del skill
+     * @param effect El efecto del skill
+     * @param material Material para el GUI (por defecto ENCHANTED_BOOK)
+     * @param prerequisites Lista de IDs de skills requeridos
+     */
+    fun registerSkill(
+        id: String,
+        name: String,
+        description: String,
+        className: String,
+        condition: Condition,
+        effect: Effect,
+        material: Material = Material.ENCHANTED_BOOK,
+        prerequisites: List<String> = emptyList()
+    )
+
+    /** Obtiene un skill por su ID */
+    fun getSkill(id: String): SkillTreeNode?
+
+    /** Obtiene todos los skills registrados */
+    fun getSkills(): Collection<SkillTreeNode>
+
+    /** Obtiene los skills de una clase concreta */
+    fun getSkillsForClass(className: String): List<SkillTreeNode>
+
+    /**
+     * Comprueba si un jugador puede desbloquear un skill.
+     * Devuelve un resultado con can=true/false y el motivo.
+     */
+    fun canUnlockSkill(player: Player, nodeId: String): SkillTree.CanUnlockResult
+
+    /** Obtiene el objeto SkillTree completo para inspección */
+    fun getSkillTree(): SkillTree
 }
