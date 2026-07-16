@@ -166,6 +166,60 @@ fun onEffect(event: EffectAppliedEvent) {
 }
 ```
 
+## Registro de skills (talentos)
+
+Puedes registrar skills programáticamente en lugar de usar `skills.yml`:
+
+```kotlin
+// Crea una Condition y Effect primero
+val condition = api.createCondition("low_health", mapOf("threshold" to 0.30))
+val effect = api.createEffect("defense_bonus", mapOf("bonus" to 0.20))
+
+// Registra con parámetros separados (construye SkillTreeNode automáticamente)
+api.registerSkill(
+    id = "pal_iron_will",
+    name = "Voluntad de Hierro",
+    description = "+20% defensa cuando tiene poca vida",
+    className = "paladin",
+    condition = condition!!,
+    effect = effect!!,
+    material = Material.SHIELD,
+    prerequisites = listOf("pal_defense_1")
+)
+
+// O construye el SkillTreeNode tú mismo
+val node = SkillTreeNode(
+    id = "pal_iron_will",
+    name = "Voluntad de Hierro",
+    description = "+20% defensa cuando tiene poca vida",
+    modifier = Modifier(condition, effect),
+    material = Material.SHIELD,
+    prerequisites = listOf("pal_defense_1")
+)
+api.registerSkill(node)
+```
+
+## Leer skills
+
+```kotlin
+// Todos los skills
+val todos: Collection<SkillTreeNode> = api.getSkills()
+
+// Por ID
+val skill: SkillTreeNode? = api.getSkill("war_damage_1")
+
+// Por clase
+val skillsGuerrero: List<SkillTreeNode> = api.getSkillsForClass("warrior")
+
+// Comprobar desbloqueo
+val resultado = api.canUnlockSkill(player, "war_damage_3")
+if (resultado.can) {
+    api.allocateTalent(player, "war_damage_3")
+} else {
+    println(resultado.reason) // ej. "Requieres: Fury"
+}
+```
+
 ## Fábricas
 
 ```kotlin
@@ -199,3 +253,10 @@ val ctx = api.context(player, event)
 | `applyModifiers(player, event, modifiers)` | Versión simplificada |
 | `modifier(condition, effect)` | Crea un Modifier |
 | `context(player, event)` | Crea un EffectContext |
+| `registerSkill(node)` | Registra un skill desde un SkillTreeNode |
+| `registerSkill(id, name, desc, className, condition, effect, ...)` | Registra un skill desde componentes |
+| `getSkill(id)` | Obtiene un skill por su ID |
+| `getSkills()` | Todos los skills registrados |
+| `getSkillsForClass(className)` | Skills de una clase específica |
+| `canUnlockSkill(player, nodeId)` | Comprueba si un jugador puede desbloquear un skill |
+| `getSkillTree()` | Obtiene el objeto SkillTree |
