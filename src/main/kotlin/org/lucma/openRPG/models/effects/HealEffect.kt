@@ -7,8 +7,8 @@ import org.lucma.openRPG.models.types.Effect
 import org.lucma.openRPG.models.types.StackType
 
 /**
- * Cura al jugador una cantidad fija de vida.
- * @param amount cantidad de corazones a curar (2 = 1 corazón)
+ * Heals the player a fixed amount of health.
+ * @param amount health to heal (2 = 1 heart)
  */
 class HealEffect(
     val amount: Double

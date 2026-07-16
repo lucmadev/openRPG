@@ -37,32 +37,92 @@ object StatusGUI : Listener {
         }
 
         if (clazz == null) {
-            inv.setItem(4, item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player)))
-            inv.setItem(22, item(Material.ENDER_CHEST, msg("gui.status.select_class", player), msg("gui.status.select_class", player)))
+            inv.setItem(
+                4,
+                item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player))
+            )
+            inv.setItem(
+                22,
+                item(
+                    Material.ENDER_CHEST,
+                    msg("gui.status.select_class", player),
+                    msg("gui.status.select_class", player)
+                )
+            )
             inv.setItem(31, item(Material.OAK_DOOR, msg("gui.status.close", player)))
             player.openInventory(inv)
             return
         }
 
-        // ── Fila 1: info general ──
+        // ── Row 1: general info ──
         inv.setItem(0, buildPlayerHead(player, clazz.name))
-        inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, msg("gui.status.level", player, data.level), msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)))
+        inv.setItem(
+            2,
+            item(
+                Material.EXPERIENCE_BOTTLE,
+                msg("gui.status.level", player, data.level),
+                msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)
+            )
+        )
 
         val pct = (data.exp.toDouble() / data.expToNextLevel.toDouble()).coerceIn(0.0, 1.0)
         val barra = "§a" + "|".repeat((pct * 20).toInt()) + "§8" + "|".repeat(20 - (pct * 20).toInt())
-        inv.setItem(4, item(Material.FILLED_MAP, msg("gui.status.exp_progress", player), barra, msg("gui.status.exp_bar", player, (pct * 100).toInt(), data.level + 1)))
+        inv.setItem(
+            4,
+            item(
+                Material.FILLED_MAP,
+                msg("gui.status.exp_progress", player),
+                barra,
+                msg("gui.status.exp_bar", player, (pct * 100).toInt(), data.level + 1)
+            )
+        )
 
         inv.setItem(6, item(Material.EMERALD, msg("gui.status.talent_points", player, data.talentPoints)))
         inv.setItem(8, item(Material.OAK_DOOR, msg("gui.status.close", player)))
 
-        // ── Fila 2: Stats ──
-        inv.setItem(9,  item(Material.RED_DYE,      msg("gui.status.stats_damage", player),       msg("gui.status.stats_multiplier", player, "1.00")))
-        inv.setItem(11, item(Material.BLUE_DYE,     msg("gui.status.stats_defense", player),      msg("gui.status.stats_multiplier", player, "1.00")))
-        inv.setItem(13, item(Material.WHITE_DYE,    msg("gui.status.stats_speed", player),        msg("gui.status.stats_multiplier", player, "1.00")))
-        inv.setItem(15, item(Material.ORANGE_DYE,   msg("gui.status.stats_crit", player),         msg("gui.status.stats_crit_chance", player, "0")))
-        inv.setItem(17, item(Material.YELLOW_DYE,   msg("gui.status.stats_crit_multi", player),   msg("gui.status.stats_multiplier", player, "1.0")))
+        // ── Row 2: Stats ──
+        inv.setItem(
+            9,
+            item(
+                Material.RED_DYE,
+                msg("gui.status.stats_damage", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            11,
+            item(
+                Material.BLUE_DYE,
+                msg("gui.status.stats_defense", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            13,
+            item(
+                Material.WHITE_DYE,
+                msg("gui.status.stats_speed", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            15,
+            item(
+                Material.ORANGE_DYE,
+                msg("gui.status.stats_crit", player),
+                msg("gui.status.stats_crit_chance", player, "0")
+            )
+        )
+        inv.setItem(
+            17,
+            item(
+                Material.YELLOW_DYE,
+                msg("gui.status.stats_crit_multi", player),
+                msg("gui.status.stats_multiplier", player, "1.0")
+            )
+        )
 
-        // ── Fila 3: Modificadores activos ──
+        // ── Row 3: Active modifiers ──
         var slot = 18
         for (mod in clazz.modifiers) {
             if (slot >= 26) break
@@ -88,7 +148,7 @@ object StatusGUI : Listener {
             slot++
         }
 
-        // ── Fila 4: Botones ──
+        // ── Row 4: Buttons ──
         inv.setItem(27, item(Material.ENDER_CHEST, msg("gui.status.btn_change_class", player)))
         inv.setItem(31, item(Material.EMERALD_BLOCK, msg("gui.status.btn_talent_tree", player)))
         inv.setItem(35, item(Material.OAK_DOOR, msg("gui.status.close", player)))
@@ -96,7 +156,7 @@ object StatusGUI : Listener {
         player.openInventory(inv)
     }
 
-    /** Construye la cabeza del jugador con sus stats en el lore */
+    /** Build the player head with their stats in the lore */
     private fun buildPlayerHead(player: Player, className: String): ItemStack {
         val item = ItemStack(Material.PLAYER_HEAD)
         val meta = item.itemMeta as SkullMeta
@@ -108,13 +168,15 @@ object StatusGUI : Listener {
         val hunger = "${player.foodLevel}§8/§6${20}"
         val xp = player.level
 
-        meta.lore(listOf(
-            Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
-            Component.text("").decoration(TextDecoration.ITALIC, false),
-            Component.text("§c❤ §7" + health).decoration(TextDecoration.ITALIC, false),
-            Component.text("§6🍗 §7" + hunger).decoration(TextDecoration.ITALIC, false),
-            Component.text("§b✦ §7Nivel §f" + xp).decoration(TextDecoration.ITALIC, false)
-        ))
+        meta.lore(
+            listOf(
+                Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+                Component.text("").decoration(TextDecoration.ITALIC, false),
+                Component.text("§c❤ §7" + health).decoration(TextDecoration.ITALIC, false),
+                Component.text("§6🍗 §7" + hunger).decoration(TextDecoration.ITALIC, false),
+                Component.text("§b✦ §7Nivel §f" + xp).decoration(TextDecoration.ITALIC, false)
+            )
+        )
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         item.itemMeta = meta
         return item
@@ -131,8 +193,13 @@ object StatusGUI : Listener {
 
         when (event.rawSlot) {
             8, 35 -> player.closeInventory()
-            6, 31 -> { player.closeInventory(); TalentGUI.open(player) }
-            22, 27 -> { player.closeInventory(); ClassSelectionGUI.open(player) }
+            6, 31 -> {
+                player.closeInventory(); TalentGUI.open(player)
+            }
+
+            22, 27 -> {
+                player.closeInventory(); ClassSelectionGUI.open(player)
+            }
         }
     }
 

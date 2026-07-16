@@ -19,28 +19,37 @@ object SkillLoader {
         val file = java.io.File(plugin.dataFolder, FILE_NAME)
         if (!file.exists()) {
             plugin.saveResource(FILE_NAME, false)
-            Bukkit.getLogger().info("[openRPG] Creado $FILE_NAME")
+            Bukkit.getLogger().info("[openRPG] Created $FILE_NAME")
         }
         val config = YamlConfiguration.loadConfiguration(file)
         val sec = config.getConfigurationSection("skills") ?: run {
-            Bukkit.getLogger().warning("[openRPG] No hay 'skills' en $FILE_NAME"); return
+            Bukkit.getLogger().warning("[openRPG] No 'skills' section in $FILE_NAME"); return
         }
-        var ok = 0; var err = 0
+        var ok = 0;
+        var err = 0
         for (key in sec.getKeys(false)) {
             val n = sec.getConfigurationSection(key) ?: run { err++; continue }
             try {
                 val node = parseNode(key, n)
-                if (node != null) { SkillTree.register(node); ok++ } else err++
-            } catch (e: Exception) { err++; Bukkit.getLogger().warning("[openRPG] Error '$key': ${e.message}") }
+                if (node != null) {
+                    SkillTree.register(node); ok++
+                } else err++
+            } catch (e: Exception) {
+                err++; Bukkit.getLogger().warning("[openRPG] Error '$key': ${e.message}")
+            }
         }
-        Bukkit.getLogger().info("[openRPG] Skills: $ok cargados, $err errores")
+        Bukkit.getLogger().info("[openRPG] Skills: $ok loaded, $err errors")
     }
 
     private fun parseNode(id: String, s: ConfigurationSection): SkillTreeNode? {
         val name = s.getString("name") ?: return null
         val desc = s.getString("description") ?: ""
         val classId = s.getString("class") ?: return null
-        val mat = try { Material.valueOf(s.getString("material", "ENCHANTED_BOOK")!!.uppercase()) } catch (_: Exception) { Material.ENCHANTED_BOOK }
+        val mat = try {
+            Material.valueOf(s.getString("material", "ENCHANTED_BOOK")!!.uppercase())
+        } catch (_: Exception) {
+            Material.ENCHANTED_BOOK
+        }
         val prereqs = s.getStringList("prerequisites")
         val cond = buildCond(s.getConfigurationSection("condition")) ?: return null
         val eff = buildEff(s.getConfigurationSection("effect")) ?: return null

@@ -29,12 +29,12 @@ object SkillTree {
     }
 
     fun canUnlock(nodeId: String, unlockedIds: Set<String>): CanUnlockResult {
-        val node = nodes[nodeId] ?: return CanUnlockResult(false, "Nodo no encontrado")
-        if (nodeId in unlockedIds) return CanUnlockResult(false, "Ya tienes este nodo")
+        val node = nodes[nodeId] ?: return CanUnlockResult(false, "Node not found")
+        if (nodeId in unlockedIds) return CanUnlockResult(false, "You already have this node")
         val missing = node.prerequisites.filter { it !in unlockedIds }
         if (missing.isNotEmpty()) {
             val names = missing.mapNotNull { nodes[it]?.name }.joinToString(", ")
-            return CanUnlockResult(false, "Requieres: $names")
+            return CanUnlockResult(false, "Requires: $names")
         }
         return CanUnlockResult(true, "")
     }

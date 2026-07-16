@@ -12,14 +12,14 @@ import org.lucma.openRPG.gui.TalentGUI
 import org.lucma.openRPG.managers.PlayerClassManager
 
 /**
- * Comando único /openrpg con subcomandos.
+ * Single /openrpg command with subcommands.
  *
- *   /openrpg               → ayuda
- *   /openrpg status        → GUI de estado
- *   /openrpg class         → GUI de selección de clase
- *   /openrpg class <id>    → asigna clase directamente
- *   /openrpg talent        → GUI de árbol de talentos
- *   /openrpg help          → esta ayuda
+ *   /openrpg               → help
+ *   /openrpg status        → Status GUI
+ *   /openrpg class         → Class selection GUI
+ *   /openrpg class <id>    → Direct class assignment
+ *   /openrpg talent        → Talent tree GUI
+ *   /openrpg help          → This help
  */
 class OpenRPGCommand : CommandExecutor {
 
@@ -40,6 +40,7 @@ class OpenRPGCommand : CommandExecutor {
             "status", "stats", "s" -> {
                 StatusGUI.open(sender)
             }
+
             "class", "clase", "c" -> {
                 val classId = args.getOrNull(1)
                 if (classId != null) {
@@ -48,15 +49,18 @@ class OpenRPGCommand : CommandExecutor {
                     ClassSelectionGUI.open(sender)
                 }
             }
+
             "talent", "talento", "t", "skill" -> {
                 TalentGUI.open(sender)
             }
+
             "help", "h", "?" -> {
                 showHelp(sender, label)
             }
+
             else -> {
-                sender.sendMessage("§cSubcomando desconocido: §f" + sub)
-                sender.sendMessage("§7Usa §e/" + label + " help§7 para ver los disponibles.")
+                sender.sendMessage("§cUnknown subcommand: §f" + sub)
+                sender.sendMessage("§7Use §e/" + label + " help§7 to see available commands.")
             }
         }
 
@@ -76,16 +80,16 @@ class OpenRPGCommand : CommandExecutor {
     private fun showHelp(player: Player, label: String) {
         player.sendMessage("")
         player.sendMessage("§6§l╔══════════════════════════════╗")
-        player.sendMessage("§6§l║      §e§lopenRPG Ayuda       §6§l║")
+        player.sendMessage("§6§l║      §e§lopenRPG Help        §6§l║")
         player.sendMessage("§6§l╚══════════════════════════════╝")
         player.sendMessage("")
-        player.sendMessage("§e/" + label + " §7- Muestra esta ayuda")
-        player.sendMessage("§e/" + label + " status §7- Estado del jugador")
-        player.sendMessage("§e/" + label + " class §7- Seleccionar clase (GUI)")
-        player.sendMessage("§e/" + label + " class <id> §7- Asignar clase directa")
-        player.sendMessage("§e/" + label + " talent §7- Árbol de talentos")
+        player.sendMessage("§e/" + label + " §7- Show this help")
+        player.sendMessage("§e/" + label + " status §7- Player status")
+        player.sendMessage("§e/" + label + " class §7- Select class (GUI)")
+        player.sendMessage("§e/" + label + " class <id> §7- Direct class assignment")
+        player.sendMessage("§e/" + label + " talent §7- Talent tree")
         player.sendMessage("")
-        player.sendMessage("§7Clases disponibles:")
+        player.sendMessage("§7Available classes:")
         ClassRegistry.all().forEach { c ->
             player.sendMessage("  §e" + c.id + "§8 → §f" + c.name)
         }

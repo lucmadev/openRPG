@@ -35,13 +35,13 @@ object EffectVisualizer : Listener {
                 is CriticalChanceEffect -> formatPct(msg("visualizer.crit_chance", p), effect.chance, colorCrit)
                 is CriticalDamageEffect -> formatPct(msg("visualizer.crit_damage", p), effect.bonus, colorCrit)
                 else -> {
-                    Bukkit.getLogger().fine("[openRPG] " + msg("visualizer.unknown") + ": ${effect::class.simpleName}")
+                    Bukkit.getLogger().fine("[openRPG] Unknown effect: ${effect::class.simpleName}")
                     return
                 }
             }
             event.player.sendActionBar(bonus)
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en EffectVisualizer: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in EffectVisualizer: " + ex.message)
             ex.printStackTrace()
         }
     }

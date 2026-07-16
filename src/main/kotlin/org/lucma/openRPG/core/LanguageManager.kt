@@ -7,11 +7,11 @@ import java.io.InputStreamReader
 import java.util.Properties
 
 /**
- * Gestor de internacionalización.
- * Carga archivos [language].properties desde resources/messages/
- * y resuelve mensajes por clave + locale del jugador.
+ * Internationalization manager.
+ * Loads [language].properties files from resources/messages/
+ * and resolves messages by key + player locale.
  *
- * Uso:
+ * Usage:
  *     LanguageManager.msg("gui.class_selection.title")
  *     LanguageManager.msg("class.warrior.name", player)
  *     LanguageManager.msg("effect.damage_bonus", player, "+25")
@@ -32,13 +32,13 @@ object LanguageManager {
                 val stream = plugin.getResource(path) ?: continue
                 props.load(InputStreamReader(stream, "UTF-8"))
                 bundles[lang] = props
-                Bukkit.getLogger().info("[openRPG] Cargadas traducciones: $lang (${props.size} claves)")
+                Bukkit.getLogger().info("[openRPG] Loaded translations: $lang (${props.size} keys)")
             } catch (e: Exception) {
-                Bukkit.getLogger().warning("[openRPG] Error cargando idioma $lang: ${e.message}")
+                Bukkit.getLogger().warning("[openRPG] Error loading language $lang: ${e.message}")
             }
         }
 
-        // Cargar default = english
+        // Load default = english
         val fallback = bundles[FALLBACK]
         if (fallback != null) {
             for (key in fallback.stringPropertyNames()) {
@@ -47,7 +47,7 @@ object LanguageManager {
         }
     }
 
-    /** Obtiene un mensaje por clave, formateado para el locale del jugador. */
+    /** Get a message by key, formatted for the player's locale. */
     fun msg(key: String, player: Player? = null, vararg args: Any?): String {
         val lang = if (player != null) {
             player.locale().language
@@ -55,7 +55,7 @@ object LanguageManager {
         return resolve(key, lang, args)
     }
 
-    /** Obtiene un mensaje por clave para un locale específico ("en", "es"). */
+    /** Get a message by key for a specific locale ("en", "es"). */
     fun msg(key: String, locale: String, vararg args: Any?): String {
         return resolve(key, locale, args)
     }
@@ -76,12 +76,12 @@ object LanguageManager {
         return result
     }
 
-    /** Verifica si una clave existe en los mensajes cargados. */
+    /** Check if a key exists in the loaded messages. */
     fun hasKey(key: String): Boolean {
         return defaults.containsKey(key) || bundles.values.any { it.containsKey(key) }
     }
 
-    /** Recarga los archivos de idioma */
+    /** Reload the language files */
     fun reload(plugin: JavaPlugin) {
         bundles.clear()
         defaults.clear()

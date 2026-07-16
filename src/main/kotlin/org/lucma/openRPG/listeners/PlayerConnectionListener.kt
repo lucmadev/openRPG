@@ -18,7 +18,7 @@ object PlayerConnectionListener : Listener {
             PlayerClassManager.loadFromPDC(event.player)
             PlayerDataManager.load(event.player)
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en PlayerJoinEvent: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in PlayerJoinEvent: " + ex.message)
             ex.printStackTrace()
         }
     }
@@ -38,7 +38,7 @@ object PlayerConnectionListener : Listener {
             CooldownManager.clear(player)
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en PlayerQuitEvent: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in PlayerQuitEvent: " + ex.message)
             ex.printStackTrace()
         }
     }

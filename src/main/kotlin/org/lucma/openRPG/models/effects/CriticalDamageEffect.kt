@@ -6,8 +6,8 @@ import org.lucma.openRPG.models.types.Effect
 import org.lucma.openRPG.models.types.StackType
 
 /**
- * Aumenta el multiplicador de daño crítico.
- * @param bonus valor adicional al multiplicador (ej: 0.50 = +50% daño crítico)
+ * Increases critical damage multiplier.
+ * @param bonus additional value to the multiplier (e.g. 0.50 = +50% crit damage)
  */
 class CriticalDamageEffect(
     val bonus: Double

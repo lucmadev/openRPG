@@ -33,20 +33,24 @@ object ExpListener : Listener {
                 killer.sendMessage(
                     Component.text(msg("exp.level_up", killer, data.level))
                         .color(colorLevel)
-                        .append(Component.text(" " + msg("exp.talent_points_hint", killer, data.talentPoints))
-                            .color(TextColor.color(0xAAAAAA)))
+                        .append(
+                            Component.text(" " + msg("exp.talent_points_hint", killer, data.talentPoints))
+                                .color(TextColor.color(0xAAAAAA))
+                        )
                 )
             } else {
                 killer.sendActionBar(
                     Component.text(msg("exp.gained", killer, exp))
                         .color(colorExp)
-                        .append(Component.text(" " + msg("exp.bar_format", killer, data.exp, data.expToNextLevel))
-                            .color(TextColor.color(0x888888)))
+                        .append(
+                            Component.text(" " + msg("exp.bar_format", killer, data.exp, data.expToNextLevel))
+                                .color(TextColor.color(0x888888))
+                        )
                 )
             }
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en ExpListener: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in ExpListener: " + ex.message)
             ex.printStackTrace()
         }
     }
@@ -55,9 +59,9 @@ object ExpListener : Listener {
         val maxHealth = event.entity.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
         return when {
             maxHealth >= 200 -> 50
-            maxHealth >= 80  -> 25
-            maxHealth >= 40  -> 15
-            maxHealth >= 10  -> 8
+            maxHealth >= 80 -> 25
+            maxHealth >= 40 -> 15
+            maxHealth >= 10 -> 8
             else -> 3
         }
     }

@@ -8,8 +8,8 @@ import org.lucma.openRPG.models.types.Effect
 import org.lucma.openRPG.models.types.StackType
 
 /**
- * Convierte un porcentaje del daño infligido en curación para el jugador.
- * @param stealPercentage porcentaje del daño que se convierte en vida (ej: 0.10 = 10%)
+ * Converts a percentage of damage dealt into healing for the player.
+ * @param stealPercentage percentage of damage converted to health (e.g. 0.10 = 10%)
  */
 class LifeStealEffect(
     val stealPercentage: Double

@@ -23,11 +23,11 @@ import org.lucma.openRPG.models.types.Effect
 
 class OpenRPGAPIImpl : OpenRPGAPI {
 
-    // ════════════════════════ Registros ════════════════════════
+    // ════════════════════════ Registries ════════════════════════
 
     override fun registerClass(clazz: PlayerClass) {
         ClassRegistry.register(clazz)
-        Bukkit.getLogger().info("[openRPG-API] Clase registrada: " + clazz.id)
+        Bukkit.getLogger().info("[openRPG-API] Class registered: " + clazz.id)
     }
 
     override fun getClasses(): Collection<PlayerClass> = ClassRegistry.all()
@@ -55,7 +55,7 @@ class OpenRPGAPIImpl : OpenRPGAPI {
     override fun applyStatModifier(id: String, stats: PlayerStats, config: Map<String, Any>): Boolean =
         StatRegistry.apply(id, stats, config)
 
-    // ════════════════════════ Jugador ════════════════════════
+    // ════════════════════════ Player ════════════════════════
 
     override fun setPlayerClass(player: Player, clazz: PlayerClass) {
         PlayerClassManager.setPlayerClass(player, clazz)
@@ -88,13 +88,13 @@ class OpenRPGAPIImpl : OpenRPGAPI {
         val context = EffectContext(player, event, PlayerStats())
         EffectEngine.apply(context, modifiers)
 
-        // Aplicar stats al evento si es de daño
+        // Apply stats to the event if it is damage-related
         if (event is org.bukkit.event.entity.EntityDamageByEntityEvent) {
             event.damage *= context.stats.damageMultiplier
         }
     }
 
-    // ════════════════════════ Fábricas ════════════════════════
+    // ════════════════════════ Factories ════════════════════════
 
     override fun modifier(condition: Condition, effect: Effect): Modifier =
         Modifier(condition, effect)
@@ -106,7 +106,7 @@ class OpenRPGAPIImpl : OpenRPGAPI {
 
     override fun registerSkill(node: SkillTreeNode) {
         SkillTree.register(node)
-        Bukkit.getLogger().info("[openRPG-API] Skill registrado: " + node.id + " (" + node.name + ")")
+        Bukkit.getLogger().info("[openRPG-API] Skill registered: " + node.id + " (" + node.name + ")")
     }
 
     override fun registerSkill(
@@ -122,7 +122,7 @@ class OpenRPGAPIImpl : OpenRPGAPI {
         val node = SkillTreeNode(id, name, description, Modifier(condition, effect), material, prerequisites)
         SkillTree.register(node)
         SkillTree.addToClass(className, id)
-        Bukkit.getLogger().info("[openRPG-API] Skill registrado: $id ($name) para clase $className")
+        Bukkit.getLogger().info("[openRPG-API] Skill registered: $id ($name) for class $className")
     }
 
     override fun getSkill(id: String): SkillTreeNode? = SkillTree.getNode(id)
@@ -133,7 +133,7 @@ class OpenRPGAPIImpl : OpenRPGAPI {
         SkillTree.getNodesForClass(className)
 
     override fun canUnlockSkill(player: Player, nodeId: String): SkillTree.CanUnlockResult {
-        val data = PlayerDataManager.get(player) ?: return SkillTree.CanUnlockResult(false, "Jugador no encontrado")
+        val data = PlayerDataManager.get(player) ?: return SkillTree.CanUnlockResult(false, "Player not found")
         return SkillTree.canUnlock(nodeId, data.unlockedNodes)
     }
 
