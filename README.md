@@ -1,94 +1,94 @@
 # openRPG
 
-Sistema RPG modular para servidores Paper 1.21+. Añade clases, habilidades pasivas, árbol de talentos, estadísticas y un sistema de progresión por EXP — todo con interfaz gráfica de inventario.
+Modular RPG system for Paper 1.21+ servers. Adds classes, passive skills, talent trees, stats, and an EXP progression system — all with inventory-based GUIs.
 
-## Características
+## Features
 
-- **3 clases jugables**: Guerrero, Mago y Asesino, cada una con modificadores únicos
-- **Sistema de condiciones**: los efectos se activan según el contexto (cerca de enemigos, de noche, vida baja, agachado)
-- **Árbol de talentos**: 6 talentos por clase, con prerequisitos y puntos por nivel
-- **Sistema de EXP**: ganas experiencia al matar mobs, subes de nivel y obtienes puntos de talento
-- **Estadísticas**: daño, defensa, velocidad, probabilidad de crítico y multiplicador de crítico
-- **Interfaz gráfica**: todos los sistemas tienen GUI de inventario (selección de clase, estado, árbol de talentos)
-- **Persistencia**: los datos se guardan en el PersistentDataContainer del jugador (no requiere archivos externos)
-- **API pública**: otros plugins pueden extender el sistema con clases, condiciones y efectos propios
-- **Evento personalizado**: `EffectAppliedEvent` para que otros plugins reaccionen sin acoplarse
+- **3 playable classes**: Warrior, Mage and Assassin, each with unique modifiers
+- **Condition system**: effects activate based on context (near enemies, at night, low health, sneaking)
+- **Talent tree**: 6 talents per class, with prerequisites and points per level
+- **EXP system**: gain experience by killing mobs, level up, and earn talent points
+- **Stats**: damage, defense, speed, critical chance, and critical multiplier
+- **Graphical interface**: all systems have inventory GUIs (class selection, status, talent tree)
+- **Persistence**: data is saved in the player's PersistentDataContainer (no external files required)
+- **Public API**: other plugins can extend the system with custom classes, conditions, and effects
+- **Custom event**: `EffectAppliedEvent` so other plugins can react without coupling
 
-## Requisitos
+## Requirements
 
-- **Servidor**: Paper 1.21+ (API 26.2+)
+- **Server**: Paper 1.21+ (API 26.2+)
 - **Java**: 21+ (jvmToolchain 25)
 
-## Instalación
+## Installation
 
-1. Descarga el JAR desde [releases](https://github.com/Lucma/openRPG/releases)
-2. Colócalo en la carpeta `plugins/` de tu servidor
-3. Reinicia el servidor
+1. Download the JAR from [releases](https://github.com/Lucma/openRPG/releases)
+2. Place it in your server's `plugins/` folder
+3. Restart the server
 
-## Comandos
+## Commands
 
-| Comando | Alias | Descripción |
+| Command | Alias | Description |
 |---|---|---|
-| `/assignclass [id]` | `/class`, `/clase` | Abre GUI de selección de clase o asigna por ID |
-| `/rpg` | `/pg`, `/stats` | Abre GUI de estado del jugador |
-| `/talent` | `/talento`, `/skill` | Abre GUI del árbol de talentos |
+| `/assignclass [id]` | `/class`, `/clase` | Opens class selection GUI or assigns by ID |
+| `/rpg` | `/pg`, `/stats` | Opens player status GUI |
+| `/talent` | `/talento`, `/skill` | Opens talent tree GUI |
 
-## Clases
+## Classes
 
-### 🗡️ Guerrero
-Bonos cuando hay enemigos cerca:
-- +10% daño
-- +5% defensa
-- +5% velocidad
-- +3% prob. crítico
-- +0.20 multi. crítico
+### 🗡️ Warrior
+Bonuses when enemies are nearby:
+- +10% damage
+- +5% defense
+- +5% speed
+- +3% crit chance
+- +0.20 crit multiplier
 
-### 🔮 Mago
-Bonos de noche y cuando está herido:
-- +15% daño de noche
-- +5% prob. crítico de noche
-- +10% defensa si vida < 30%
-- +0.25 multi. crítico si vida < 30%
-- Quema 2s al golpear
-- +5% velocidad cerca de enemigos
+### 🔮 Mage
+Bonuses at night and when injured:
+- +15% damage at night
+- +5% crit chance at night
+- +10% defense if health < 30%
+- +0.25 crit multiplier if health < 30%
+- Burns 2s on hit
+- +5% speed near enemies
 
-### 🗡️ Asesino
-Bonos al agacharse y cuando está herido:
-- +20% daño agachado
-- +8% prob. crítico agachado
-- +0.30 multi. crítico agachado
-- +10% velocidad agachado
-- 5% robo de vida si vida < 30%
+### 🗡️ Assassin
+Bonuses when sneaking and when injured:
+- +20% damage while sneaking
+- +8% crit chance while sneaking
+- +0.30 crit multiplier while sneaking
+- +10% speed while sneaking
+- 5% life steal if health < 30%
 
-## Árbol de talentos
+## Talent tree
 
-Cada nivel otorga **1 punto de talento** (máx 50 niveles). Los puntos se gastan en el árbol de talentos de tu clase.
+Each level grants **1 talent point** (max 50 levels). Points are spent in your class's talent tree.
 
-Ejemplo de nodos del Guerrero:
+Example Warrior nodes:
 
 ```
-Furia         → +15% daño (sin requisito)
-Torbellino    → +25% daño (requiere: Furia)
-Fortaleza     → +15% defensa
-Instinto asesino → +7% prob. crítico
-Golpe brutal  → +0.50 multi. crítico
-Regeneración  → Cura 2❤ si vida < 30%
+Fury           → +15% damage (no prerequisite)
+Whirlwind      → +25% damage (requires: Fury)
+Fortitude      → +15% defense
+Killer Instinct → +7% crit chance
+Brutal Strike  → +0.50 crit multiplier
+Regeneration   → Heal 2❤ if health < 30%
 ```
 
-Usa `/talent` para abrir el árbol y haz clic en los nodos para aprenderlos.
+Use `/talent` to open the tree and click on nodes to learn them.
 
-## API para desarrolladores
+## API for developers
 
-openRPG expone una API pública via `ServicesManager` de Bukkit.
+openRPG exposes a public API via Bukkit's `ServicesManager`.
 
-### Dependencia
+### Dependency
 
 **`plugin.yml`**:
 ```yaml
 depend: [openRPG]
 ```
 
-### Uso básico
+### Basic usage
 
 ```kotlin
 import org.lucma.openRPG.api.OpenRPGAPI
@@ -96,44 +96,44 @@ import org.bukkit.Bukkit
 
 val api = Bukkit.getServicesManager().load(OpenRPGAPI::class.java)
 
-// Registrar una clase personalizada
+// Register a custom class
 api.registerClass(MyCustomClass())
 
-// Aplicar modifiers temporales (buffos, equipo)
+// Apply temporary modifiers (buffs, equipment)
 api.applyModifiers(player, event, listOf(
     api.modifier(AlwaysCondition(), DamageBonusEffect(0.10))
 ))
 ```
 
-### Escuchar eventos
+### Listening to events
 
 ```kotlin
 @EventHandler
 fun onEffect(event: EffectAppliedEvent) {
     val player = event.player
     val modifier = event.modifier
-    // partículas, sonidos, estadísticas...
+    // particles, sounds, stats...
 }
 ```
 
-### API completa
+### Complete API
 
-| Método | Descripción |
+| Method | Description |
 |---|---|
-| `registerClass(clazz)` | Registra una clase jugable |
-| `getPlayerClass(player)` | Clase actual del jugador |
-| `setPlayerClass(player, clazz)` | Asigna clase (persiste en PDC) |
-| `getPlayerData(player)` | Nivel, EXP, talentos del jugador |
-| `addExp(player, amount)` | Añade EXP (controla level ups) |
-| `applyModifiers(player, event, modifiers)` | Aplica modifiers al jugador |
-| `registerEffect(id, factory)` | Registra un efecto desde configuración |
-| `createEffect(id, config)` | Crea un efecto desde configuración |
+| `registerClass(clazz)` | Register a playable class |
+| `getPlayerClass(player)` | Player's current class |
+| `setPlayerClass(player, clazz)` | Assign class (persists in PDC) |
+| `getPlayerData(player)` | Player level, EXP, talents |
+| `addExp(player, amount)` | Grant EXP (handles level ups) |
+| `applyModifiers(player, event, modifiers)` | Apply modifiers to player |
+| `registerEffect(id, factory)` | Register an effect from config |
+| `createEffect(id, config)` | Create an effect from config |
 
-## Arquitectura
+## Architecture
 
 ```
                          ┌──────────────┐
-                         │  OpenRPGAPI  │ ← API pública (ServicesManager)
+                         │  OpenRPGAPI  │ ← Public API (ServicesManager)
                          └──────┬───────┘
                                 │
 ┌───────────┐    ┌──────────────┴──────────┐    ┌──────────────┐
@@ -150,30 +150,30 @@ fun onEffect(event: EffectAppliedEvent) {
 └───────────┘
 ```
 
-### Flujo de un golpe
+### Hit flow
 
 ```
 EntityDamageByEntityEvent
   → DamageListener
     → EventDispatcher
       → PlayerClassManager.getPlayerClass()
-      → PlayerDataManager.get() (talentos)
-      → Fusiona modifiers de clase + talentos
+      → PlayerDataManager.get() (talents)
+      → Merge class + talent modifiers
         → EffectEngine.apply(context, modifiers)
           → condition.matches()? → effect.apply() → callEvent(EffectAppliedEvent)
     → event.damage *= multiplier
-    → ¿crítico? → event.damage *= critMultiplier
+    → critical? → event.damage *= critMultiplier
     → ActionBar: "Zombie ❤ 34 (x1.25)"
 ```
 
-## Compilación
+## Build
 
 ```bash
 ./gradlew build
 ```
 
-El JAR se genera en `build/libs/`.
+The JAR is generated in `build/libs/`.
 
-## Licencia
+## License
 
 MIT
