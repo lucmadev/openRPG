@@ -21,16 +21,16 @@ object PlayerClassManager {
         if (key != null) return key
         val created = NamespacedKey(OpenRPG.instance, "player_class")
         classKey = created
-        Bukkit.getLogger().info("[openRPG] PDC key creado: " + created.namespace + ":" + created.key)
+        Bukkit.getLogger().info("[openRPG] PDC key created: " + created.namespace + ":" + created.key)
         return created
     }
 
-    // ── Memoria (runtime) ──
+    // ── Runtime (memory) ──
 
     fun setPlayerClass(player: Player, clazz: PlayerClass) {
         playerClasses[player.uniqueId] = clazz
         saveToPDC(player, clazz.id)
-        Bukkit.getLogger().info("[openRPG] Clase asignada a " + player.getName() + ": " + clazz.id + " (guardada en PDC)")
+        Bukkit.getLogger().info("[openRPG] Class assigned to " + player.getName() + ": " + clazz.id + " (saved to PDC)")
     }
 
     fun getPlayerClass(player: Player): PlayerClass? {
@@ -44,7 +44,7 @@ object PlayerClassManager {
         }
     }
 
-    // ── Persistencia (PersistentDataContainer) ──
+    // ── Persistence (PersistentDataContainer) ──
 
     fun loadFromPDC(player: Player) {
         try {
@@ -52,22 +52,23 @@ object PlayerClassManager {
             val classId = player.persistentDataContainer.get(key, PersistentDataType.STRING)
 
             if (classId == null) {
-                Bukkit.getLogger().fine("[openRPG] " + player.getName() + " no tiene clase guardada en PDC")
+                Bukkit.getLogger().fine("[openRPG] " + player.getName() + " has no class saved in PDC")
                 return
             }
 
-            Bukkit.getLogger().info("[openRPG] PDC read para " + player.getName() + ": \"" + classId + "\"")
+            Bukkit.getLogger().info("[openRPG] PDC read for " + player.getName() + ": \"" + classId + "\"")
 
             val clazz = ClassRegistry.get(classId)
             if (clazz != null) {
                 playerClasses[player.uniqueId] = clazz
-                Bukkit.getLogger().info("[openRPG] " + player.getName() + " cargó su clase: " + clazz.id)
+                Bukkit.getLogger().info("[openRPG] " + player.getName() + " loaded class: " + clazz.id)
             } else {
-                Bukkit.getLogger().warning("[openRPG] Clase '" + classId + "' no encontrada en registry, limpiando PDC")
+                Bukkit.getLogger().warning("[openRPG] Class '" + classId + "' not found in registry, clearing PDC")
                 player.persistentDataContainer.remove(key)
             }
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error cargando clase de PDC para " + player.getName() + ": " + ex.message)
+            Bukkit.getLogger()
+                .severe("[openRPG] Error loading class from PDC for " + player.getName() + ": " + ex.message)
             ex.printStackTrace()
         }
     }
@@ -77,11 +78,12 @@ object PlayerClassManager {
             val key = getClassKey()
             player.persistentDataContainer.set(key, PersistentDataType.STRING, classId)
 
-            // Verificar que se guardó
+            // Verify it was saved
             val verify = player.persistentDataContainer.get(key, PersistentDataType.STRING)
-            Bukkit.getLogger().info("[openRPG] PDC write para " + player.getName() + ": \"" + classId + "\" (verify: \"" + verify + "\")")
+            Bukkit.getLogger()
+                .info("[openRPG] PDC write for " + player.getName() + ": \"" + classId + "\" (verify: \"" + verify + "\")")
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error guardando clase en PDC para " + player.getName() + ": " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error saving class to PDC for " + player.getName() + ": " + ex.message)
             ex.printStackTrace()
         }
     }

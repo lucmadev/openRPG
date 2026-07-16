@@ -7,14 +7,14 @@ import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
 
 /**
- * Se dispara después de que un [Modifier] (condición + efecto) se aplica
- * sobre un jugador. Otros plugins pueden escucharlo para:
+ * Fired after a [Modifier] (condition + effect) is applied
+ * to a player. Other plugins can listen to it to:
  *
- * - Mostrar partículas o reproducir sonidos
- * - Registrar estadísticas de efectos aplicados
- * - Integrar PlaceholderAPI
- * - Implementar logros o misiones
- * - Añadir efectos visuales secundarios
+ * - Show particles or play sounds
+ * - Track applied effect statistics
+ * - Integrate with PlaceholderAPI
+ * - Implement achievements or quests
+ * - Add secondary visual effects
  */
 class EffectAppliedEvent(
     val player: Player,

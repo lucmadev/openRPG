@@ -7,8 +7,8 @@ import org.lucma.openRPG.models.types.Effect
 import org.lucma.openRPG.models.types.StackType
 
 /**
- * Añade probabilidad de golpe crítico.
- * @param chance probabilidad adicional (ej: 0.10 = +10%)
+ * Adds critical hit chance.
+ * @param chance additional probability (e.g. 0.10 = +10%)
  */
 class CriticalChanceEffect(
     val chance: Double

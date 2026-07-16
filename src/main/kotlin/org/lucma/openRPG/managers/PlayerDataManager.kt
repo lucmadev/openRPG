@@ -32,7 +32,7 @@ object PlayerDataManager {
         }
     }
 
-    // ── Carga / Guardado ──
+    // ── Load / Save ──
 
     fun load(player: Player): PlayerData {
         initKeys()
@@ -49,10 +49,11 @@ object PlayerDataManager {
             val data = PlayerData(level, exp, tp, nodes)
             playersData[player.uniqueId] = data
 
-            Bukkit.getLogger().info("[openRPG] " + player.getName() + " data: lv=" + level + " exp=" + exp + " tp=" + tp + " nodes=" + nodes.size)
+            Bukkit.getLogger()
+                .info("[openRPG] " + player.getName() + " data: lv=" + level + " exp=" + exp + " tp=" + tp + " nodes=" + nodes.size)
             return data
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error cargando PlayerData: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error loading PlayerData: " + ex.message)
             val data = PlayerData()
             playersData[player.uniqueId] = data
             return data
@@ -69,7 +70,7 @@ object PlayerDataManager {
             pdc.set(talentPointsKey!!, PersistentDataType.INTEGER, data.talentPoints)
             pdc.set(talentNodesKey!!, PersistentDataType.STRING, data.unlockedNodes.joinToString(","))
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error guardando PlayerData: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error saving PlayerData: " + ex.message)
         }
     }
 
@@ -100,7 +101,8 @@ object PlayerDataManager {
             data.level++
             data.talentPoints++
             leveledUp = true
-            Bukkit.getLogger().info("[openRPG] " + player.getName() + " subió a nivel " + data.level + " (TP: " + data.talentPoints + ")")
+            Bukkit.getLogger()
+                .info("[openRPG] " + player.getName() + " leveled up to " + data.level + " (TP: " + data.talentPoints + ")")
         }
         if (data.level >= 50) data.exp = data.exp.coerceAtMost(data.expToNextLevel)
 
@@ -108,7 +110,7 @@ object PlayerDataManager {
         return leveledUp
     }
 
-    // ── Talentos ──
+    // ── Talents ──
 
     fun allocateNode(player: Player, nodeId: String): Boolean {
         val data = getOrCreate(player)

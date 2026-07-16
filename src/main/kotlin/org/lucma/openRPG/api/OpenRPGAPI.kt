@@ -14,68 +14,68 @@ import org.lucma.openRPG.models.types.Condition
 import org.lucma.openRPG.models.types.Effect
 
 /**
- * Interfaz pública de openRPG.
- * Otros plugins obtienen la instancia via ServicesManager:
+ * Public openRPG API interface.
+ * Other plugins obtain the instance via ServicesManager:
  *
  *     val api = Bukkit.getServicesManager().load(OpenRPGAPI::class.java)
  *
- * Dependencia en plugin.yml:
+ * Dependency in plugin.yml:
  *     depend: [openRPG]
  *     softdepend: [openRPG]
  */
 interface OpenRPGAPI {
 
     // ═══════════════════════════════════════════
-    //  Registros
+    //  Registries
     // ═══════════════════════════════════════════
 
-    /** Registra una clase jugable */
+    /** Register a playable class */
     fun registerClass(clazz: PlayerClass)
 
-    /** Obtiene todas las clases registradas */
+    /** Get all registered classes */
     fun getClasses(): Collection<PlayerClass>
 
-    /** Busca una clase por ID */
+    /** Find a class by ID */
     fun getClass(id: String): PlayerClass?
 
-    /** Registra una condición reutilizable por ID */
+    /** Register a reusable condition by ID */
     fun registerCondition(id: String, factory: (Map<String, Any>) -> Condition)
 
-    /** Crea una condición desde configuración */
+    /** Create a condition from config */
     fun createCondition(id: String, config: Map<String, Any>): Condition?
 
-    /** Registra un efecto reutilizable por ID */
+    /** Register a reusable effect by ID */
     fun registerEffect(id: String, factory: (Map<String, Any>) -> Effect)
 
-    /** Crea un efecto desde configuración */
+    /** Create an effect from config */
     fun createEffect(id: String, config: Map<String, Any>): Effect?
 
-    /** Registra un operador de stats por ID */
+    /** Register a stat modifier by ID */
     fun registerStatModifier(id: String, applicator: (PlayerStats, Map<String, Any>) -> Unit)
 
-    /** Aplica un modificador de stats registrado */
+    /** Apply a registered stat modifier */
     fun applyStatModifier(id: String, stats: PlayerStats, config: Map<String, Any>): Boolean
 
     // ═══════════════════════════════════════════
-    //  Jugador
+    //  Player
     // ═══════════════════════════════════════════
 
-    /** Asigna una clase a un jugador (persiste en PDC) */
+    /** Assign a class to a player (persists in PDC) */
     fun setPlayerClass(player: Player, clazz: PlayerClass)
 
-    /** Obtiene la clase actual de un jugador */
+    /** Get the player's current class */
     fun getPlayerClass(player: Player): PlayerClass?
 
-    /** Obtiene los datos de progresión del jugador (nivel, EXP, talentos) */
+    /** Get the player's progression data (level, EXP, talents) */
     fun getPlayerData(player: Player): PlayerData?
 
-    /** Añade EXP a un jugador. Devuelve true si subió de nivel */
+    /** Grant EXP to a player. Returns true if they leveled up */
     fun addExp(player: Player, amount: Int): Boolean
 
-    /** Desbloquea un nodo de talento para el jugador */
+    /** Unlock a talent node for the player */
     fun allocateTalent(player: Player, nodeId: String): Boolean
 
-    /** Obtiene los IDs de talentos desbloqueados del jugador */
+    /** Get the player's unlocked talent IDs */
     fun getUnlockedTalents(player: Player): Set<String>
 
     // ═══════════════════════════════════════════
@@ -83,55 +83,55 @@ interface OpenRPGAPI {
     // ═══════════════════════════════════════════
 
     /**
-     * Aplica una lista de modifiers a un contexto.
-     * Es el mismo método que usa el sistema internamente.
-     * Útil para añadir modifiers temporales (buffos, equipo).
+     * Apply a list of modifiers to a context.
+     * This is the same method used internally.
+     * Useful for temporary modifiers (buffs, equipment).
      *
-     * Ejemplo:
+     * Example:
      *     api.applyModifiers(player, EffectContext(player, event, PlayerStats()), listOf(
      *         Modifier(AlwaysCondition(), DamageBonusEffect(0.10))
      *     ))
      */
     fun applyModifiers(player: Player, context: EffectContext, modifiers: List<Modifier>)
 
-    /** Versión simplificada: crea un EffectContext con PlayerStats nuevo */
+    /** Simplified version: creates an EffectContext with a new PlayerStats */
     fun applyModifiers(player: Player, event: Event, modifiers: List<Modifier>)
 
     // ═══════════════════════════════════════════
-    //  Fábricas rápidas
+    //  Quick factories
     // ═══════════════════════════════════════════
 
-    /** Crea un Modifier con condición y efecto ya instanciados */
+    /** Create a Modifier with already instantiated condition and effect */
     fun modifier(condition: Condition, effect: Effect): Modifier
 
-    /** Crea un EffectContext para usar con applyModifiers */
+    /** Create an EffectContext for use with applyModifiers */
     fun context(player: Player, event: Event): EffectContext
 
     // ═══════════════════════════════════════════
-    //  Skills (talentos)
+    //  Skills (talents)
     // ═══════════════════════════════════════════
 
     /**
-     * Registra un skill/talento programáticamente.
-     * Útil para plugins que quieran añadir nodos al árbol de talentos
-     * sin usar skills.yml.
+     * Register a skill/talent programmatically.
+     * Useful for plugins that want to add nodes to the talent tree
+     * without using skills.yml.
      *
-     * @param node El SkillTreeNode a registrar
+     * @param node The SkillTreeNode to register
      */
     fun registerSkill(node: SkillTreeNode)
 
     /**
-     * Registra un skill/talento desde sus componentes.
-     * Versión simplificada que construye el SkillTreeNode internamente.
+     * Register a skill/talent from its components.
+     * Simplified version that builds the SkillTreeNode internally.
      *
-     * @param id Identificador único del skill
-     * @param name Nombre visible
-     * @param description Descripción
-     * @param className Clase a la que pertenece ("warrior", "mage", "assassin", o una clase registrada)
-     * @param condition La condición del skill
-     * @param effect El efecto del skill
-     * @param material Material para el GUI (por defecto ENCHANTED_BOOK)
-     * @param prerequisites Lista de IDs de skills requeridos
+     * @param id Unique skill identifier
+     * @param name Display name
+     * @param description Description text
+     * @param className Class it belongs to ("warrior", "mage", "assassin", or a registered class)
+     * @param condition The skill's condition
+     * @param effect The skill's effect
+     * @param material GUI material (default ENCHANTED_BOOK)
+     * @param prerequisites List of required skill IDs
      */
     fun registerSkill(
         id: String,
@@ -144,21 +144,21 @@ interface OpenRPGAPI {
         prerequisites: List<String> = emptyList()
     )
 
-    /** Obtiene un skill por su ID */
+    /** Get a skill by its ID */
     fun getSkill(id: String): SkillTreeNode?
 
-    /** Obtiene todos los skills registrados */
+    /** Get all registered skills */
     fun getSkills(): Collection<SkillTreeNode>
 
-    /** Obtiene los skills de una clase concreta */
+    /** Get the skills for a specific class */
     fun getSkillsForClass(className: String): List<SkillTreeNode>
 
     /**
-     * Comprueba si un jugador puede desbloquear un skill.
-     * Devuelve un resultado con can=true/false y el motivo.
+     * Check if a player can unlock a skill.
+     * Returns a result with can=true/false and the reason.
      */
     fun canUnlockSkill(player: Player, nodeId: String): SkillTree.CanUnlockResult
 
-    /** Obtiene el objeto SkillTree completo para inspección */
+    /** Get the full SkillTree object for inspection */
     fun getSkillTree(): SkillTree
 }

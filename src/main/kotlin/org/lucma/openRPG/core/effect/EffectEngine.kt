@@ -18,12 +18,13 @@ object EffectEngine {
                     ?.sortedByDescending { it.effect.priority }
                     ?: return@forEach
 
-                Bukkit.getLogger().fine("[openRPG] Procesando stackType=$stackType (${sorted.size} modificadores)")
+                Bukkit.getLogger().fine("[openRPG] Processing stackType=$stackType (${sorted.size} modifiers)")
 
                 sorted.forEach { modifier ->
 
                     val conditionMet = modifier.condition.matches(context)
-                    Bukkit.getLogger().fine("[openRPG]   condition=${modifier.condition::class.simpleName} | matches=$conditionMet | effect=${modifier.effect::class.simpleName}")
+                    Bukkit.getLogger()
+                        .fine("[openRPG]   condition=${modifier.condition::class.simpleName} | matches=$conditionMet | effect=${modifier.effect::class.simpleName}")
 
                     if (conditionMet) {
                         modifier.effect.apply(context)
@@ -42,7 +43,7 @@ object EffectEngine {
             }
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en EffectEngine: ${ex.javaClass.simpleName}: ${ex.message}")
+            Bukkit.getLogger().severe("[openRPG] Error in EffectEngine: ${ex.javaClass.simpleName}: ${ex.message}")
             ex.printStackTrace()
         }
     }

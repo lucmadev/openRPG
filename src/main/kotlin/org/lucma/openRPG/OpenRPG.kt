@@ -40,7 +40,7 @@ class OpenRPG : JavaPlugin() {
         EffectRegistry.registerDefaults()
         StatRegistry.registerDefaults()
 
-        // ── Skills (desde YAML) ──
+        // ── Skills (from YAML) ──
         SkillLoader.load(this)
 
         // ── Listeners ──
@@ -54,16 +54,17 @@ class OpenRPG : JavaPlugin() {
 
         // ── Commands ──
         getCommand("openrpg")?.setExecutor(OpenRPGCommand())
-            ?: logger.warning("No se pudo registrar /openrpg")
+            ?: logger.warning("Could not register /openrpg command")
 
         // ── API ──
-        Bukkit.getServicesManager().register(OpenRPGAPI::class.java, OpenRPGAPIImpl(), this, org.bukkit.plugin.ServicePriority.Normal)
+        Bukkit.getServicesManager()
+            .register(OpenRPGAPI::class.java, OpenRPGAPIImpl(), this, org.bukkit.plugin.ServicePriority.Normal)
 
-        logger.info("openRPG habilitado correctamente.")
+        logger.info("openRPG enabled successfully.")
     }
 
     override fun onDisable() {
-        logger.info("Guardando datos de jugadores online...")
+        logger.info("Saving online player data...")
         Bukkit.getOnlinePlayers().forEach { player ->
             val clazz = PlayerClassManager.getPlayerClass(player)
             if (clazz != null) {
@@ -71,7 +72,7 @@ class OpenRPG : JavaPlugin() {
             }
             PlayerDataManager.save(player)
         }
-        logger.info("openRPG deshabilitado.")
+        logger.info("openRPG disabled.")
     }
 
     companion object {

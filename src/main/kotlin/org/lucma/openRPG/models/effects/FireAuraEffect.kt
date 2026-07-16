@@ -9,11 +9,11 @@ import org.lucma.openRPG.models.types.Effect
 import org.lucma.openRPG.models.types.StackType
 
 /**
- * Prende fuego al enemigo golpeado durante [duration] segundos,
- * con un cooldown de [cooldownSeconds] entre activaciones.
+ * Sets the hit enemy on fire for [duration] seconds,
+ * with a cooldown of [cooldownSeconds] between activations.
  *
- * @param duration segundos de combustión
- * @param cooldownSeconds segundos de espera entre usos (0 = sin cooldown)
+ * @param duration burn seconds
+ * @param cooldownSeconds cooldown between uses (0 = no cooldown)
  */
 class FireAuraEffect(
     val duration: Int = 3,
@@ -32,7 +32,7 @@ class FireAuraEffect(
         val target = event.entity
         if (target !is LivingEntity) return
 
-        // Cooldown por jugador (quien aplica el efecto)
+        // Cooldown per player (who applies the effect)
         if (cooldownSeconds > 0) {
             if (CooldownManager.isOnCooldown(context.player, cooldownKey)) return
             CooldownManager.set(context.player, cooldownKey, cooldownSeconds)

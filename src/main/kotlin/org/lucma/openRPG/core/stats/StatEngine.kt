@@ -27,8 +27,8 @@ object StatEngine {
     }
 
     /**
-     * Aplica un modificador registrado en [StatRegistry] por su ID.
-     * Útil para efectos dinámicos basados en configuración.
+     * Apply a modifier registered in [StatRegistry] by its ID.
+     * Useful for dynamic config-based effects.
      */
     fun apply(
         id: String,

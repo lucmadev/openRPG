@@ -4,7 +4,7 @@ import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.types.Condition
 
 /**
- * Se activa cuando el jugador está agachado (sneaking).
+ * Activates when the player is sneaking.
  */
 class SneakingCondition : Condition {
 

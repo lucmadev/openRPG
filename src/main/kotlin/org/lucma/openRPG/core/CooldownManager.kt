@@ -5,18 +5,18 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Gestiona cooldowns por jugador + clave.
- * Útil para efectos que no deben repetirse hasta pasado un tiempo.
+ * Manages cooldowns per player + key.
+ * Useful for effects that should not repeat until some time has passed.
  *
- * Uso:
+ * Usage:
  *     if (CooldownManager.isOnCooldown(player, "fire_aura")) return
- *     CooldownManager.set(player, "fire_aura", 5) // 5 segundos
+ *     CooldownManager.set(player, "fire_aura", 5) // 5 seconds
  */
 object CooldownManager {
 
     private val data = ConcurrentHashMap<UUID, MutableMap<String, Long>>()
 
-    /** Verifica si un cooldown está activo */
+    /** Check if a cooldown is active */
     fun isOnCooldown(player: Player, key: String): Boolean {
         val now = System.currentTimeMillis()
         val playerMap = data[player.uniqueId] ?: return false
@@ -28,7 +28,7 @@ object CooldownManager {
         return true
     }
 
-    /** Obtiene segundos restantes de cooldown (0 si no está activo) */
+    /** Get remaining cooldown seconds (0 if not active) */
     fun getRemaining(player: Player, key: String): Int {
         val now = System.currentTimeMillis()
         val playerMap = data[player.uniqueId] ?: return 0
@@ -41,18 +41,18 @@ object CooldownManager {
         return remaining
     }
 
-    /** Activa un cooldown de [seconds] segundos */
+    /** Set a cooldown of [seconds] seconds */
     fun set(player: Player, key: String, seconds: Int) {
         val expires = System.currentTimeMillis() + (seconds * 1000L)
         data.computeIfAbsent(player.uniqueId) { ConcurrentHashMap() }[key] = expires
     }
 
-    /** Limpia todos los cooldowns de un jugador */
+    /** Clear all cooldowns for a player */
     fun clear(player: Player) {
         data.remove(player.uniqueId)
     }
 
-    /** Limpia un cooldown específico */
+    /** Clear a specific cooldown */
     fun remove(player: Player, key: String) {
         data[player.uniqueId]?.remove(key)
     }

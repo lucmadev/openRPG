@@ -43,7 +43,7 @@ class DamageListener : Listener {
                 event.entity.customName() ?: event.entity.name()
             )
 
-            // ── Vida actual / total de la entidad ──
+            // ── Entity current / max health ──
             val entityHealth = if (event.entity is LivingEntity) {
                 val living = event.entity as LivingEntity
                 val cur = living.health
@@ -70,7 +70,7 @@ class DamageListener : Listener {
             player.sendActionBar(bar)
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en DamageListener: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in DamageListener: " + ex.message)
             ex.printStackTrace()
         }
     }

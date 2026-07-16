@@ -18,13 +18,13 @@ object EventDispatcher {
             val playerClass =
                 PlayerClassManager.getPlayerClass(context.player)
                     ?: run {
-                        Bukkit.getLogger().fine("[openRPG] " + playerName + " no tiene clase asignada")
+                        Bukkit.getLogger().fine("[openRPG] " + playerName + " has no class assigned")
                         return
                     }
 
             val classModifiers = playerClass.modifiers
 
-            // ── Fusionar modifiers de clase + talentos ──
+            // ── Merge class modifiers + talent modifiers ──
             val playerData = PlayerDataManager.get(context.player)
             val talentModifiers = if (playerData != null) {
                 SkillTree.getModifiers(playerData.unlockedNodes)
@@ -32,12 +32,14 @@ object EventDispatcher {
 
             val allModifiers = classModifiers + talentModifiers
 
-            Bukkit.getLogger().fine("[openRPG] Disparando " + allModifiers.size + " efectos para " + playerName + " (clase=" + playerClass.id + " | talentos=" + talentModifiers.size + ")")
+            Bukkit.getLogger()
+                .fine("[openRPG] Firing " + allModifiers.size + " effects for " + playerName + " (class=" + playerClass.id + " | talents=" + talentModifiers.size + ")")
 
             EffectEngine.apply(context, allModifiers)
 
         } catch (ex: Exception) {
-            Bukkit.getLogger().severe("[openRPG] Error en EventDispatcher: " + ex.javaClass.simpleName + ": " + ex.message)
+            Bukkit.getLogger()
+                .severe("[openRPG] Error in EventDispatcher: " + ex.javaClass.simpleName + ": " + ex.message)
             ex.printStackTrace()
         }
     }

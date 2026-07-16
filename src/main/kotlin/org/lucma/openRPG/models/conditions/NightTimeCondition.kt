@@ -4,8 +4,8 @@ import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.types.Condition
 
 /**
- * Se activa cuando es de noche en el mundo del jugador.
- * Tiempo de Minecraft: 13000 = anochecer, 23000 = amanecer.
+ * Activates when it is night in the player's world.
+ * Minecraft time: 13000 = dusk, 23000 = dawn.
  */
 class NightTimeCondition : Condition {
 
