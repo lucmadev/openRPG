@@ -31,6 +31,57 @@ class DamageListener : Listener {
             val context = EffectContext(player, event, PlayerStats())
             EventDispatcher.dispatch(context)
 
+            // ── Victim context (para efectos defensivos) ──
+            val victim = event.entity
+            val victimContext = if (victim is Player) {
+                val vc = EffectContext(victim, event, PlayerStats())
+                EventDispatcher.dispatch(vc)
+                vc
+            } else null
+
+            // ── Dodge ──
+            if (victimContext != null && victimContext.stats.dodgeChance > 0.0 && Random.nextDouble() < victimContext.stats.dodgeChance) {
+                event.isCancelled = true
+                victim.sendActionBar(Component.text(" §a¡ESQUIVADO!").color(TextColor.color(0x55FF55)))
+                player.sendActionBar(
+                    Component.text(" §cEl objetivo esquivó el ataque").color(TextColor.color(0xFF5555))
+                )
+                return
+            }
+
+            // ── Thorns ──
+            if (victimContext != null && victimContext.stats.thornsChance > 0.0 && Random.nextDouble() < victimContext.stats.thornsChance) {
+                val thornDmg = victimContext.stats.thornsDamage
+                player.damage(thornDmg, victim)
+                player.sendActionBar(
+                    Component.text(" §cEspinas: §4" + thornDmg.roundToInt() + "").color(TextColor.color(0xFF5555))
+                )
+            }
+
+            // ── Shield ──
+            if (victimContext != null && victimContext.stats.shieldHealth > 0.0) {
+                val shield = victimContext.stats.shieldHealth
+                if (shield >= event.damage) {
+                    victimContext.stats.shieldHealth -= event.damage
+                    event.damage = 0.0
+                } else {
+                    event.damage -= shield
+                    victimContext.stats.shieldHealth = 0.0
+                }
+            }
+
+            // ── Damage Reduction ──
+            if (victimContext != null && victimContext.stats.damageReduction > 0.0) {
+                event.damage = (event.damage - victimContext.stats.damageReduction).coerceAtLeast(0.0)
+            }
+
+            // ── Damage Reflect ──
+            val originalDamage = event.damage
+            if (victimContext != null && victimContext.stats.damageReflect > 0.0) {
+                val reflectDamage = originalDamage * victimContext.stats.damageReflect
+                player.damage(reflectDamage, victim)
+            }
+
             event.damage *= context.stats.damageMultiplier
 
             var wasCrit = false
