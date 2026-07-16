@@ -23,7 +23,7 @@ class LifeStealEffect(
         if (event !is EntityDamageByEntityEvent) return
 
         val damage = event.damage
-        val healAmount = damage * stealPercentage
+        val healAmount = damage * stealPercentage * context.stats.lifestealMultiplier
         val player = context.player
         val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
         val newHealth = (player.health + healAmount).coerceAtMost(maxHealth)
