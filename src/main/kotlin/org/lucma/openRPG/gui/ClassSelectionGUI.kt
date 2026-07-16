@@ -24,14 +24,14 @@ object ClassSelectionGUI : Listener {
     private const val GUI_SIZE = 27
 
     private val classMaterials = mapOf(
-        "warrior"  to Material.IRON_SWORD,
-        "mage"     to Material.ENDER_PEARL,
+        "warrior" to Material.IRON_SWORD,
+        "mage" to Material.ENDER_PEARL,
         "assassin" to Material.NETHERITE_SWORD
     )
 
     private val classSlots = mapOf(
-        "warrior"  to 11,
-        "mage"     to 13,
+        "warrior" to 11,
+        "mage" to 13,
         "assassin" to 15
     )
 
@@ -54,7 +54,14 @@ object ClassSelectionGUI : Listener {
         if (current != null) {
             inv.setItem(22, item(Material.BOOK, msg("gui.class_selection.current", player, current.name), ""))
         } else {
-            inv.setItem(22, item(Material.BARRIER, msg("gui.class_selection.none", player), msg("gui.class_selection.no_class_hint", player)))
+            inv.setItem(
+                22,
+                item(
+                    Material.BARRIER,
+                    msg("gui.class_selection.none", player),
+                    msg("gui.class_selection.no_class_hint", player)
+                )
+            )
         }
 
         inv.setItem(26, item(Material.OAK_DOOR, msg("gui.class_selection.close", player)))
@@ -69,26 +76,36 @@ object ClassSelectionGUI : Listener {
         if (selected) {
             val skull = meta as SkullMeta
             skull.setOwningPlayer(player)
-            skull.displayName(Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false))
+            skull.displayName(
+                Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false)
+            )
             val maxHp = player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20
-            skull.lore(listOf(
-            Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
-            Component.text("").decoration(TextDecoration.ITALIC, false),
-            Component.text("§c❤ §7" + player.health.roundToInt() + "§8/§c" + maxHp).decoration(TextDecoration.ITALIC, false),
-            Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
-            Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
-        ))
+            skull.lore(
+                listOf(
+                    Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+                    Component.text("").decoration(TextDecoration.ITALIC, false),
+                    Component.text("§c❤ §7" + player.health.roundToInt() + "§8/§c" + maxHp)
+                        .decoration(TextDecoration.ITALIC, false),
+                    Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
+                    Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+                )
+            )
             skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
             item.itemMeta = skull
             item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.UNBREAKING, 1)
         } else {
-            meta.displayName(Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false))
+            meta.displayName(
+                Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false)
+            )
             val desc = msg("class." + clazz.id + ".desc", player).replace("\\n", "\n")
-            meta.lore(listOf(
-                Component.text(desc).decoration(TextDecoration.ITALIC, false),
-                Component.text("").decoration(TextDecoration.ITALIC, false),
-                Component.text(msg("gui.class_selection.select_hint", player)).decoration(TextDecoration.ITALIC, false)
-            ))
+            meta.lore(
+                listOf(
+                    Component.text(desc).decoration(TextDecoration.ITALIC, false),
+                    Component.text("").decoration(TextDecoration.ITALIC, false),
+                    Component.text(msg("gui.class_selection.select_hint", player))
+                        .decoration(TextDecoration.ITALIC, false)
+                )
+            )
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
             item.itemMeta = meta
         }
@@ -122,7 +139,7 @@ object ClassSelectionGUI : Listener {
         PlayerClassManager.setPlayerClass(player, clazz)
         player.sendActionBar(Component.text(msg("gui.class_selection.assigned", player, clazz.name)))
         player.closeInventory()
-        open(player)
+        StatusGUI.open(player)
     }
 
     private fun item(mat: Material, name: String, vararg lore: String): ItemStack {
