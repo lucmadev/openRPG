@@ -48,138 +48,213 @@ skills:
 
 ## Available conditions
 
-### close_enemies
+### Basic (original)
 
-Activates when there are living entities (non-player) near the player.
+| type | Parameters | Description |
+|---|---|---|
+| `close_enemies` | `radius: 5.0` | Nearby enemies |
+| `low_health` | `threshold: 0.30` | Health < threshold |
+| `night_time` | — | Night time |
+| `sneaking` | — | Sneaking |
+| `always` | — | Always active |
 
-```yaml
-condition:
-  type: close_enemies
-  config:
-    radius: 5.0   # radius in blocks (default: 5.0)
-```
+### Environmental
 
-### low_health
+| type | Parameters | Description |
+|---|---|---|
+| `raining` | — | Raining |
+| `thundering` | — | Thundering |
+| `day_time` | — | Day time |
+| `underground` | — | Underground (solid block above) |
+| `in_water` | — | In water |
+| `in_lava` | — | In lava |
+| `on_fire` | — | On fire |
+| `in_cave` | `maxSkyLight: 7` | In a cave |
+| `high_altitude` | `minY: 0`, `maxY: -1` | Between Y levels |
+| `biome` | `biome: plains`, `matchType: exact` | Specific biome |
 
-Activates when the player's health is below a percentage threshold.
+### Player state
 
-```yaml
-condition:
-  type: low_health
-  config:
-    threshold: 0.30   # 0.30 = 30% health (default: 0.30)
-```
+| type | Parameters | Description |
+|---|---|---|
+| `health_above` | `threshold: 0.70` | Health > threshold |
+| `full_health` | — | Full health |
+| `sprinting` | — | Sprinting |
+| `swimming` | — | Swimming |
+| `gliding` | — | Gliding (elytra) |
+| `on_ground` | — | On ground |
+| `airborne` | — | In the air |
+| `hunger` | `threshold: 6`, `mode: below` | Hunger above/below |
+| `experience_level` | `minLevel: 0`, `maxLevel: -1` | Vanilla XP level |
+| `saturation` | `threshold: 5.0`, `mode: below` | Saturation |
+| `fall_distance` | `minDistance: 3.0` | Fall distance |
 
-### night_time
+### Special state
 
-Activates when it is night in the player's world (13000–23000 ticks).
+| type | Parameters | Description |
+|---|---|---|
+| `has_potion_effect` | `effectType: ""` (any) | Has potion effect |
+| `holding_item` | `material: ""`, `hand: main` | Holding an item |
+| `wearing_armor` | `material: ""` (any) | Wearing armor |
+| `wearing_full_armor` | — | All 4 armor slots |
+| `in_vehicle` | — | Riding a vehicle |
+| `sleeping` | — | Sleeping in bed |
 
-```yaml
-condition:
-  type: night_time
-  config: {}   # no parameters
-```
+### Combat
 
-### sneaking
+| type | Parameters | Description |
+|---|---|---|
+| `in_combat` | `timeSinceHit: 5` | Recent combat |
+| `no_enemies` | `radius: 5.0` | No nearby enemies |
+| `outnumbered` | `radius: 5.0`, `ratio: 1.5` | Outnumbered |
+| `target_low_health` | `threshold: 0.30` | Target low health |
+| `target_full_health` | — | Target full health |
+| `last_hit_killer` | — | Killing blow |
+| `behind_target` | — | Behind the target |
+| `blocking` | — | Blocking with shield |
+| `recently_hurt` | `timeWindow: 3` | Hurt in last N seconds |
 
-Activates when the player is sneaking.
+### Compound / Logic
 
-```yaml
-condition:
-  type: sneaking
-  config: {}   # no parameters
-```
+| type | Parameters | Description |
+|---|---|---|
+| `and` | `conditions: [{type, config}]` | All conditions |
+| `or` | `conditions: [{type, config}]` | Any condition |
+| `not` | `condition: {type, config}` | Negates condition |
+| `random` | `chance: 0.5` | Random probability |
+| `cooldown` | `key: "x"`, `seconds: 5` | Cooldown between uses |
+
+### Class / Data
+
+| type | Parameters | Description |
+|---|---|---|
+| `has_class` | `classId: ""` | Has class (any or specific) |
+| `has_talent` | `nodeId: "..."` | Unlocked talent |
+| `player_level` | `minLevel: 1`, `maxLevel: -1` | openRPG level |
+| `talent_points` | `minPoints: 1` | Available talent points |
+
+### Miscellaneous
+
+| type | Parameters | Description |
+|---|---|---|
+| `in_region` | `world`, `x1,z1,x2,z2` | Inside a region |
+| `moon_phase` | `phase: 0` (0-7) | Moon phase |
+| `light_level` | `min: 0`, `max: 15`, `type: any` | Light level |
+| `in_world` | `worldName: "world"` | Specific world |
 
 ## Available effects
 
-### damage_bonus
+### Basic (original)
 
-Multiplies damage dealt.
+| type | Parameters | Description |
+|---|---|---|
+| `damage_bonus` | `bonus: 0.25` | +% damage dealt |
+| `defense_bonus` | `bonus: 0.15` | +% defense |
+| `speed_bonus` | `bonus: 0.10` | +% speed |
+| `critical_chance` | `chance: 0.08` | +% crit chance |
+| `critical_damage` | `bonus: 0.50` | + crit multiplier |
+| `heal` | `amount: 2.0` | Flat heal |
+| `life_steal` | `percentage: 0.10` | % life steal |
+| `fire_aura` | `duration: 3`, `cooldown: 5` | Fire on hit |
 
-```yaml
-effect:
-  type: damage_bonus
-  config:
-    bonus: 0.25   # 0.25 = +25% damage
-```
+### Target status effects
 
-### defense_bonus
+| type | Parameters | Description |
+|---|---|---|
+| `wither` | `duration: 3`, `amplifier: 1` | Applies Wither |
+| `poison` | `duration: 3`, `amplifier: 1` | Applies Poison |
+| `slowness` | `duration: 3`, `amplifier: 1` | Applies Slowness |
+| `weakness` | `duration: 3`, `amplifier: 1` | Applies Weakness |
+| `blindness` | `duration: 3` | Applies Blindness |
+| `levitation` | `duration: 3`, `amplifier: 1` | Applies Levitation |
+| `glow` | `duration: 5` | Makes target glow |
+| `hunger_effect` | `duration: 5`, `amplifier: 1` | Applies Hunger |
+| `mining_fatigue` | `duration: 5`, `amplifier: 1` | Mining Fatigue |
+| `nausea` | `duration: 3` | Applies Nausea |
+| `silence` | `duration: 3` | Silences (can't use items) |
+| `disarm` | `dropChance: 1.0` | Disarms (drops item) |
+| `stun` | `duration: 2` | Stuns (can't move) |
+| `bleed` | `duration: 3`, `damagePerTick: 0.5` | Bleeding (DoT) |
 
-Multiplies defense.
+### Special damage
 
-```yaml
-effect:
-  type: defense_bonus
-  config:
-    bonus: 0.15   # 0.15 = +15% defense
-```
+| type | Parameters | Description |
+|---|---|---|
+| `knockback` | `multiplier: 0.5` | +% knockback |
+| `execute` | `bonusMultiplier: 0.5`, `threshold: 0.30` | +dmg to low HP |
+| `backstab` | `bonusMultiplier: 0.5` | +dmg from behind |
+| `charge` | `bonusMultiplier: 0.3` | +dmg while sprinting |
+| `area_damage` | `radius: 3.0`, `multiplier: 0.5` | AoE damage |
+| `chain_damage` | `radius: 5.0`, `maxTargets: 3`, `multiplier: 0.7` | Chain damage |
+| `true_damage` | `percentage: 0.20` | True damage |
+| `lightning_strike` | `damage: 0.0` | Lightning + damage |
+| `explosion` | `power: 2.0`, `fire: false` | Explosion |
+| `shield_breaker` | `bonusMultiplier: 0.30` | Bypasses shields |
+| `splash_damage` | `radius: 3.0`, `multiplier: 0.4` | Splash damage |
 
-### speed_bonus
+### Healing / Defense
 
-Multiplies speed.
+| type | Parameters | Description |
+|---|---|---|
+| `absorption` | `hearts: 4.0` | Absorption hearts |
+| `regeneration` | `duration: 5`, `amplifier: 1` | Gradual regen |
+| `damage_reduction` | `flatReduction: 1.0` | Reduces incoming damage |
+| `damage_reflect` | `percentage: 0.10` | Reflects % damage |
+| `dodge` | `chance: 0.10` | Dodge chance |
+| `shield` | `health: 5.0` | Absorbing shield |
+| `fire_resistance` | `duration: 30` | Fire resistance |
+| `water_breathing` | `duration: 30` | Underwater breathing |
+| `invulnerability` | `duration: 2` | Brief invulnerability |
 
-```yaml
-effect:
-  type: speed_bonus
-  config:
-    bonus: 0.10   # 0.10 = +10% speed
-```
+### Movement
 
-### critical_chance
+| type | Parameters | Description |
+|---|---|---|
+| `jump_boost` | `multiplier: 0.5` | +% jump height |
+| `slow_fall` | `duration: 5` | Slow falling |
+| `leap` | `power: 1.5`, `upward: 0.5` | Leap forward |
+| `dash` | `distance: 5.0` | Dash |
+| `speed_aura` | `radius: 8.0`, `amplifier: 1` | Speed to allies |
+| `web` | `radius: 2`, `duration: 3` | Cobweb trap |
 
-Adds critical hit chance (additive, not multiplicative).
+### Buffs (potions)
 
-```yaml
-effect:
-  type: critical_chance
-  config:
-    chance: 0.08   # 0.08 = +8% crit chance
-```
+| type | Parameters | Description |
+|---|---|---|
+| `strength` | `duration: 10`, `amplifier: 1` | Strength |
+| `speed_potion` | `duration: 10`, `amplifier: 1` | Speed |
+| `resistance` | `duration: 10`, `amplifier: 1` | Resistance |
+| `invisibility` | `duration: 10` | Invisibility |
+| `night_vision` | `duration: 30` | Night vision |
+| `haste` | `duration: 10`, `amplifier: 1` | Haste |
+| `dolphin_grace` | `duration: 15` | Dolphin's Grace |
+| `luck_potion` | `duration: 30`, `amplifier: 1` | Luck |
 
-### critical_damage
+### Resources
 
-Adds critical hit multiplier (adds to base 1.0).
+| type | Parameters | Description |
+|---|---|---|
+| `exp_bonus` | `multiplier: 0.5` | +% EXP |
+| `loot_bonus` | `multiplier: 0.5` | +% loot |
+| `mining_speed` | `multiplier: 0.5` | +% mining speed |
+| `health_regen` | `multiplier: 0.5` | +% health regen |
+| `mana_regen` | `regenPerSecond: 1.0` | Mana regeneration |
+| `saturation` | `amount: 5.0` | Restores saturation |
+| `feed` | `hungerRestored: 4` | Restores hunger |
 
-```yaml
-effect:
-  type: critical_damage
-  config:
-    bonus: 0.50   # 0.50 = crit deals x1.50 (base 1.0 + 0.50)
-```
+### Visual / Sound
 
-### heal
+| type | Parameters | Description |
+|---|---|---|
+| `particle` | `particle: CRIT`, `count: 10`, `speed: 0.1` | Particles |
+| `sound` | `sound: ENTITY_PLAYER_LEVELUP`, `volume: 1.0`, `pitch: 1.0` | Sound |
+| `title` | `title`, `subtitle`, `fadeIn: 10`, `stay: 40`, `fadeOut: 10` | Screen title |
 
-Heals a flat amount of health.
+### Other
 
-```yaml
-effect:
-  type: heal
-  config:
-    amount: 2.0   # 2.0 = 1 heart
-```
-
-### life_steal
-
-Converts a percentage of damage dealt into healing.
-
-```yaml
-effect:
-  type: life_steal
-  config:
-    percentage: 0.10   # 0.10 = steal 10% of damage as health
-```
-
-### fire_aura
-
-Sets the attacked enemy on fire. Supports cooldown.
-
-```yaml
-effect:
-  type: fire_aura
-  config:
-    duration: 3       # burn seconds (default: 3)
-    cooldown: 5       # cooldown seconds between uses (default: 0 = no cd)
-```
+| type | Parameters | Description |
+|---|---|---|
+| `life_steal_multiplier` | `multiplier: 0.5` | Multiplies life steal |
 
 ## Examples
 
