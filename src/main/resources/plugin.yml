@@ -12,6 +12,7 @@ website: https://github.com/lucmadev
 commands:
   openrpg:
     description: Comando principal de openRPG
+    aliases: [rpg, orpg]
     usage: |
       /<command> - Ayuda
       /<command> status - Estado del jugador
