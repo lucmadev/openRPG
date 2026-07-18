@@ -10,6 +10,7 @@ import org.lucma.openRPG.models.data.PlayerData
 import org.lucma.openRPG.models.data.PlayerStats
 import org.lucma.openRPG.models.talents.SkillTree
 import org.lucma.openRPG.models.talents.SkillTreeNode
+import org.lucma.openRPG.models.party.Party
 import org.lucma.openRPG.models.types.Condition
 import org.lucma.openRPG.models.types.Effect
 
@@ -161,4 +162,35 @@ interface OpenRPGAPI {
 
     /** Get the full SkillTree object for inspection */
     fun getSkillTree(): SkillTree
+
+    // ═══════════════════════════════════════════
+    //  Party
+    // ═══════════════════════════════════════════
+
+    /** Create a new party with the given player as leader */
+    fun createParty(leader: Player): Party
+
+    /** Get the party the player belongs to, or null */
+    fun getParty(player: Player): Party?
+
+    /** Invite a player to the party (leader only) */
+    fun inviteToParty(inviter: Player, invited: Player): Boolean
+
+    /** Accept a pending party invitation */
+    fun acceptInvite(player: Player): Boolean
+
+    /** Decline a pending party invitation */
+    fun declineInvite(player: Player): Boolean
+
+    /** Leave the current party */
+    fun leaveParty(player: Player): Boolean
+
+    /** Kick a member from the party (leader only) */
+    fun kickFromParty(leader: Player, target: Player): Boolean
+
+    /** Disband the entire party (leader only) */
+    fun disbandParty(leader: Player): Boolean
+
+    /** Transfer party leadership to another member */
+    fun transferLeadership(leader: Player, newLeader: Player): Boolean
 }
