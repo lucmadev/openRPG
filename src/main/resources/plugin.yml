@@ -17,3 +17,33 @@ commands:
       /<command> status - Estado del jugador
       /<command> class [id] - Seleccionar clase
       /<command> talent - Árbol de talentos
+  party:
+    description: Comandos de grupo (Party)
+    aliases: [p]
+    usage: |
+      /<command> create - Crear un grupo
+      /<command> invite <player> - Invitar jugador
+      /<command> accept [player] - Aceptar invitación
+      /<command> decline [player] - Rechazar invitación
+      /<command> leave - Abandonar grupo
+      /<command> kick <player> - Expulsar miembro
+      /<command> disband - Disolver grupo
+      /<command> transfer <player> - Transferir liderazgo
+      /<command> list - Listar miembros
+      /<command> help - Ayuda
+
+permissions:
+  openrpg.party.*:
+    description: All party permissions
+    default: true
+    children:
+      openrpg.party.create: true
+      openrpg.party.invite: true
+      openrpg.party.accept: true
+      openrpg.party.decline: true
+      openrpg.party.leave: true
+      openrpg.party.kick: true
+      openrpg.party.disband: true
+      openrpg.party.transfer: true
+      openrpg.party.list: true
+      openrpg.party.help: true
