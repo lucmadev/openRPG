@@ -121,9 +121,16 @@ class OpenRPGAPIImpl : OpenRPGAPI {
         material: Material,
         prerequisites: List<String>
     ) {
-        val node = SkillTreeNode(id, name, description, Modifier(condition, effect), material, prerequisites)
+        val node = SkillTreeNode(
+            id,
+            name,
+            description,
+            Modifier(condition, effect),
+            material,
+            prerequisites,
+            classId = className
+        )
         SkillTree.register(node)
-        SkillTree.addToClass(className, id)
         Bukkit.getLogger().info("[openRPG-API] Skill registered: $id ($name) for class $className")
     }
 

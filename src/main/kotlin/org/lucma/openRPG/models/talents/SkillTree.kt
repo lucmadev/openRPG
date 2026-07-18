@@ -12,6 +12,9 @@ object SkillTree {
 
     fun register(node: SkillTreeNode) {
         nodes[node.id] = node
+        if (node.classId.isNotBlank()) {
+            addToClass(node.classId, node.id)
+        }
     }
 
     fun addToClass(classId: String, nodeId: String) {

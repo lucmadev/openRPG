@@ -12,5 +12,6 @@ data class SkillTreeNode(
     val prerequisites: List<String> = emptyList(),
     val maxLevel: Int = 1,
     val x: Int = 0,
-    val y: Int = 0
+    val y: Int = 0,
+    val classId: String = ""
 )

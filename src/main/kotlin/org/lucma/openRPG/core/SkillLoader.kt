@@ -54,7 +54,7 @@ object SkillLoader {
         val cond = buildCond(s.getConfigurationSection("condition")) ?: return null
         val eff = buildEff(s.getConfigurationSection("effect")) ?: return null
         SkillTree.addToClass(classId, id)
-        return SkillTreeNode(id, name, desc, Modifier(cond, eff), mat, prereqs)
+        return SkillTreeNode(id, name, desc, Modifier(cond, eff), mat, prereqs, classId = classId)
     }
 
     private fun buildCond(s: ConfigurationSection?): org.lucma.openRPG.models.types.Condition? {
