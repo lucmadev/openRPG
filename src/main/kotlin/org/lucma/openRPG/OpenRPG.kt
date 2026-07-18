@@ -5,8 +5,10 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.lucma.openRPG.api.OpenRPGAPI
 import org.lucma.openRPG.api.OpenRPGAPIImpl
 import org.lucma.openRPG.commands.OpenRPGCommand
+import org.lucma.openRPG.commands.PartyCommand
 import org.lucma.openRPG.core.LanguageManager
 import org.lucma.openRPG.core.SkillLoader
+import org.lucma.openRPG.listeners.PartyListener
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.core.registry.ConditionRegistry
 import org.lucma.openRPG.core.registry.EffectRegistry
@@ -25,6 +27,8 @@ import org.lucma.openRPG.models.classes.Mage
 import org.lucma.openRPG.models.classes.Warrior
 
 class OpenRPG : JavaPlugin() {
+
+    private val partyListener = PartyListener()
 
     override fun onEnable() {
         instance = this
@@ -51,10 +55,14 @@ class OpenRPG : JavaPlugin() {
         server.pluginManager.registerEvents(TalentGUI, this)
         server.pluginManager.registerEvents(ClassSelectionGUI, this)
         server.pluginManager.registerEvents(StatusGUI, this)
+        server.pluginManager.registerEvents(partyListener, this)
+        partyListener.startCleanupTask()
 
         // ── Commands ──
         getCommand("openrpg")?.setExecutor(OpenRPGCommand())
             ?: logger.warning("Could not register /openrpg command")
+        getCommand("party")?.setExecutor(PartyCommand())
+            ?: logger.warning("Could not register /party command")
 
         // ── API ──
         Bukkit.getServicesManager()
@@ -72,6 +80,7 @@ class OpenRPG : JavaPlugin() {
             }
             PlayerDataManager.save(player)
         }
+        partyListener.stopCleanupTask()
         logger.info("openRPG disabled.")
     }
 
