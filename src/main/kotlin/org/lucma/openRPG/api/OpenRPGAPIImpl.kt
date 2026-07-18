@@ -18,6 +18,8 @@ import org.lucma.openRPG.models.data.PlayerData
 import org.lucma.openRPG.models.data.PlayerStats
 import org.lucma.openRPG.models.talents.SkillTree
 import org.lucma.openRPG.models.talents.SkillTreeNode
+import org.lucma.openRPG.core.PartyManager
+import org.lucma.openRPG.models.party.Party
 import org.lucma.openRPG.models.types.Condition
 import org.lucma.openRPG.models.types.Effect
 
@@ -138,4 +140,46 @@ class OpenRPGAPIImpl : OpenRPGAPI {
     }
 
     override fun getSkillTree(): SkillTree = SkillTree
+
+    // ════════════════════════ Party ════════════════════════
+
+    override fun createParty(leader: Player): Party {
+        return PartyManager.createParty(leader)
+    }
+
+    override fun getParty(player: Player): Party? {
+        return PartyManager.getParty(player)
+    }
+
+    override fun inviteToParty(inviter: Player, invited: Player): Boolean {
+        return PartyManager.invitePlayer(inviter, invited)
+    }
+
+    override fun acceptInvite(player: Player): Boolean {
+        val invites = PartyManager.getInvites(player)
+        if (invites.isEmpty()) return false
+        return PartyManager.acceptInvite(player, invites.first().party.id)
+    }
+
+    override fun declineInvite(player: Player): Boolean {
+        val invites = PartyManager.getInvites(player)
+        if (invites.isEmpty()) return false
+        return PartyManager.declineInvite(player, invites.first().party.id)
+    }
+
+    override fun leaveParty(player: Player): Boolean {
+        return PartyManager.leaveParty(player)
+    }
+
+    override fun kickFromParty(leader: Player, target: Player): Boolean {
+        return PartyManager.kickPlayer(leader, target)
+    }
+
+    override fun disbandParty(leader: Player): Boolean {
+        return PartyManager.disbandParty(leader)
+    }
+
+    override fun transferLeadership(leader: Player, newLeader: Player): Boolean {
+        return PartyManager.transferLeadership(leader, newLeader)
+    }
 }
