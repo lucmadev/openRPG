@@ -20,11 +20,13 @@ import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 import org.lucma.openRPG.models.talents.SkillTree
 import org.lucma.openRPG.models.talents.SkillTreeNode
+import java.util.UUID
 
 object TalentGUI : Listener {
 
     private const val GUI_SIZE = 36
     private val nodeSlots = listOf(10, 11, 12, 14, 15, 16)
+    private val playerPages = mutableMapOf<UUID, Int>()
 
     fun open(player: Player) {
         val clazz = PlayerClassManager.getPlayerClass(player)
@@ -34,8 +36,17 @@ object TalentGUI : Listener {
         }
 
         val data = PlayerDataManager.getOrCreate(player)
-        val nodes = SkillTree.getNodesForClass(clazz.id)
-        if (nodes.isEmpty()) return
+        val allNodes = SkillTree.getNodesForClass(clazz.id)
+        if (allNodes.isEmpty()) return
+
+        val nodesPerPage = nodeSlots.size
+        val totalPages = ((allNodes.size - 1) / nodesPerPage) + 1
+        var currentPage = playerPages[player.uniqueId] ?: 0
+        if (currentPage >= totalPages) currentPage = 0
+        playerPages[player.uniqueId] = currentPage
+
+        val startIndex = currentPage * nodesPerPage
+        val pageNodes = allNodes.drop(startIndex).take(nodesPerPage)
 
         val title = msg("gui.talent.title", player)
         val inv = Bukkit.createInventory(null, GUI_SIZE, Component.text(title))
@@ -60,19 +71,36 @@ object TalentGUI : Listener {
         }
 
         // ── Nodes ──
-        nodes.forEachIndexed { i, node ->
-            if (i < nodeSlots.size) {
-                inv.setItem(nodeSlots[i], buildNodeItem(player, node))
-            }
+        pageNodes.forEachIndexed { i, node ->
+            inv.setItem(nodeSlots[i], buildNodeItem(player, node))
         }
 
-        // ── Connections ──
-        if (nodes.size > 1 && nodes[0].prerequisites.isEmpty() && nodes[1].prerequisites.contains(nodes[0].id)) {
-            inv.setItem(19, item(Material.ARROW, "§8├──►"))
+        // ── Page info ──
+        if (totalPages > 1) {
+            inv.setItem(
+                4,
+                item(Material.MAP, "§7" + msg("gui.talent.page", player, (currentPage + 1).toString(), totalPages.toString()))
+            )
         }
 
+        // ── Navigation arrows ──
+        if (currentPage > 0) {
+            inv.setItem(18, item(Material.ARROW, "§e◀ " + msg("gui.talent.prev_page", player)))
+        }
+        if (currentPage < totalPages - 1) {
+            inv.setItem(26, item(Material.ARROW, "§e" + msg("gui.talent.next_page", player) + " ▶"))
+        }
+
+        // ── Bottom bar ──
         for (slot in 27..35) {
             inv.setItem(slot, vidrio(Material.GRAY_STAINED_GLASS_PANE))
+        }
+        // Page indicator dots
+        if (totalPages > 1) {
+            for (i in 0 until totalPages.coerceAtMost(9)) {
+                val dot = if (i == currentPage) Material.GREEN_STAINED_GLASS_PANE else Material.GRAY_STAINED_GLASS_PANE
+                inv.setItem(27 + i, vidrio(dot))
+            }
         }
 
         player.openInventory(inv)
@@ -165,14 +193,39 @@ object TalentGUI : Listener {
             return
         }
 
+        // ── Page navigation ──
+        if (event.rawSlot == 18) {
+            val currentPage = playerPages[player.uniqueId] ?: 0
+            if (currentPage > 0) {
+                playerPages[player.uniqueId] = currentPage - 1
+                player.closeInventory()
+                open(player)
+            }
+            return
+        }
+        if (event.rawSlot == 26) {
+            val currentPage = playerPages[player.uniqueId] ?: 0
+            val clazz = PlayerClassManager.getPlayerClass(player) ?: return
+            val allNodes = SkillTree.getNodesForClass(clazz.id)
+            val totalPages = ((allNodes.size - 1) / nodeSlots.size) + 1
+            if (currentPage < totalPages - 1) {
+                playerPages[player.uniqueId] = currentPage + 1
+                player.closeInventory()
+                open(player)
+            }
+            return
+        }
+
         val nodeIndex = nodeSlots.indexOf(event.rawSlot)
         if (nodeIndex == -1) return
 
         val clazz = PlayerClassManager.getPlayerClass(player) ?: return
-        val nodes = SkillTree.getNodesForClass(clazz.id)
-        if (nodeIndex >= nodes.size) return
+        val allNodes = SkillTree.getNodesForClass(clazz.id)
+        val currentPage = playerPages[player.uniqueId] ?: 0
+        val startIndex = currentPage * nodeSlots.size
+        if (nodeIndex >= allNodes.size - startIndex) return
 
-        val node = nodes[nodeIndex]
+        val node = allNodes[startIndex + nodeIndex]
         val data = PlayerDataManager.getOrCreate(player)
 
         if (node.id in data.unlockedNodes) {
