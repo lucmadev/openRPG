@@ -1,5 +1,6 @@
 package org.lucma.openRPG.commands
 
+import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -19,6 +20,7 @@ import org.lucma.openRPG.managers.PlayerClassManager
  *   /openrpg class         → Class selection GUI
  *   /openrpg class <id>    → Direct class assignment
  *   /openrpg talent        → Talent tree GUI
+ *   /openrpg party [...]   → Party commands
  *   /openrpg help          → This help
  */
 class OpenRPGCommand : CommandExecutor {
@@ -52,6 +54,14 @@ class OpenRPGCommand : CommandExecutor {
 
             "talent", "talento", "t", "skill" -> {
                 TalentGUI.open(sender)
+            }
+
+            "party", "p", "grupo", "g" -> {
+                val partyArgs = args.drop(1).toTypedArray()
+                val fakeCommand = Bukkit.getPluginCommand("party")
+                if (fakeCommand != null) {
+                    PartyCommand().onCommand(sender, fakeCommand, "party", partyArgs)
+                }
             }
 
             "help", "h", "?" -> {
@@ -88,6 +98,7 @@ class OpenRPGCommand : CommandExecutor {
         player.sendMessage("§e/" + label + " class §7- Select class (GUI)")
         player.sendMessage("§e/" + label + " class <id> §7- Direct class assignment")
         player.sendMessage("§e/" + label + " talent §7- Talent tree")
+        player.sendMessage("§e/" + label + " party §7- Party commands (/party, /p)")
         player.sendMessage("")
         player.sendMessage("§7Available classes:")
         ClassRegistry.all().forEach { c ->

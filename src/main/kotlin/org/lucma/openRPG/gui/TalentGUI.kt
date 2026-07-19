@@ -27,6 +27,7 @@ object TalentGUI : Listener {
     private const val GUI_SIZE = 36
     private val nodeSlots = listOf(10, 11, 12, 14, 15, 16)
     private val playerPages = mutableMapOf<UUID, Int>()
+    private val bottomRowSlots = 27..35 // 9 slots for centering
 
     fun open(player: Player) {
         val clazz = PlayerClassManager.getPlayerClass(player)
@@ -75,11 +76,15 @@ object TalentGUI : Listener {
             inv.setItem(nodeSlots[i], buildNodeItem(player, node))
         }
 
-        // ── Page info ──
+        // ── Page indicator (centered, shows current/total) ──
         if (totalPages > 1) {
             inv.setItem(
                 4,
-                item(Material.MAP, "§7" + msg("gui.talent.page", player, (currentPage + 1).toString(), totalPages.toString()))
+                item(
+                    Material.KNOWLEDGE_BOOK,
+                    "§e§l" + msg("gui.talent.page", player, (currentPage + 1).toString(), totalPages.toString()),
+                    "§7" + msg("gui.talent.page_hint", player)
+                )
             )
         }
 
@@ -91,15 +96,21 @@ object TalentGUI : Listener {
             inv.setItem(26, item(Material.ARROW, "§e" + msg("gui.talent.next_page", player) + " ▶"))
         }
 
-        // ── Bottom bar ──
-        for (slot in 27..35) {
+        // ── Bottom bar with centered page dots ──
+        for (slot in bottomRowSlots) {
             inv.setItem(slot, vidrio(Material.GRAY_STAINED_GLASS_PANE))
         }
-        // Page indicator dots
         if (totalPages > 1) {
-            for (i in 0 until totalPages.coerceAtMost(9)) {
-                val dot = if (i == currentPage) Material.GREEN_STAINED_GLASS_PANE else Material.GRAY_STAINED_GLASS_PANE
-                inv.setItem(27 + i, vidrio(dot))
+            val dotsToShow = totalPages.coerceAtMost(9)
+            val startSlot = 27 + ((9 - dotsToShow) / 2)
+            for (i in 0 until dotsToShow) {
+                val dot = if (i == currentPage) Material.LIME_STAINED_GLASS_PANE else Material.GRAY_STAINED_GLASS_PANE
+                val name = if (i == currentPage) "§a§l● " + msg("gui.talent.page", player, (i + 1).toString(), totalPages.toString()) else "§7○"
+                val pane = vidrio(dot)
+                val meta = pane.itemMeta
+                meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
+                pane.itemMeta = meta
+                inv.setItem(startSlot + i, pane)
             }
         }
 
