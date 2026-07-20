@@ -39,6 +39,9 @@ Los jugadores la ven en `/openrpg class` o pueden asignarla directamente:
 /openrpg class paladin
 ```
 
+> **Alias:** Todos los comandos `/openrpg` también funcionan con `/rpg` y `/orpg`.
+> Ejemplo: `/rpg class`, `/rpg talent`, `/rpg party invite <jugador>`.
+
 ## Registro de condiciones
 
 Las condiciones deben implementar `Condition`:
@@ -194,9 +197,17 @@ val node = SkillTreeNode(
     description = "+20% defensa cuando tiene poca vida",
     modifier = Modifier(condition, effect),
     material = Material.SHIELD,
-    prerequisites = listOf("pal_defense_1")
+    prerequisites = listOf("pal_defense_1"),
+    classId = "paladin"  // Necesario para que aparezca en el GUI de talentos
 )
 api.registerSkill(node)
+
+// Nota: El campo `classId` es esencial para que el skill aparezca
+// en el árbol de talentos de la clase especificada.
+// Sin él, el skill se guarda pero nunca se muestra.
+
+// Puedes registrar skills desde otro plugin en cualquier momento:
+// Solo llama a registerSkill durante tu onEnable().
 ```
 
 ## Leer skills
@@ -219,6 +230,120 @@ if (resultado.can) {
     println(resultado.reason) // ej. "Requieres: Fury"
 }
 ```
+
+## Party System
+
+OpenRPG incluye un sistema de grupos (Party) que otros plugins pueden consumir.
+
+### Interfaz Party
+
+```kotlin
+interface Party {
+    val id: UUID
+    val leader: Player
+    val members: List<Player>
+    val isFull: Boolean
+    val size: Int
+    val maxSize: Int
+}
+```
+
+### API de Party
+
+```kotlin
+// Crear un grupo
+val party = api.createParty(player)
+
+// Obtener el grupo de un jugador
+val party = api.getParty(player)
+
+// Invitar un jugador (solo líder)
+api.inviteToParty(inviter, invited)
+
+// Aceptar / rechazar invitación
+api.acceptInvite(player)
+api.declineInvite(player)
+
+// Salir del grupo / expulsar miembro (solo líder)
+api.leaveParty(player)
+api.kickFromParty(leader, target)
+
+// Disolver el grupo (solo líder)
+api.disbandParty(leader)
+
+// Transferir liderazgo a otro miembro
+api.transferLeadership(leader, newLeader)
+```
+
+### Eventos de Party
+
+```kotlin
+import org.lucma.openRPG.events.*
+
+@EventHandler
+fun onPartyJoin(event: PartyJoinEvent) {
+    val party = event.party
+    val player = event.player
+    // partículas, sonidos, broadcast
+}
+
+@EventHandler
+fun onPartyLeave(event: PartyLeaveEvent) {
+    when (event.reason) {
+        LeaveReason.VOLUNTARY -> // se fue voluntariamente
+        LeaveReason.KICKED -> // fue expulsado
+        LeaveReason.DISCONNECTED -> // se desconectó
+        LeaveReason.DISBANDED -> // grupo disuelto
+    }
+}
+```
+
+| Evento | Atributos | Descripción |
+|---|---|---|
+| `PartyPreInviteEvent` | `party, inviter, invited` | Cancellable — antes de enviar invitación |
+| `PartyInviteEvent` | `party, inviter, invited` | Se envió invitación |
+| `PartyJoinEvent` | `party, player` | Jugador se unió |
+| `PartyLeaveEvent` | `party, player, reason` | Jugador se fue |
+| `PartyDisbandEvent` | `party` | Grupo disuelto |
+| `PartyLeaderChangeEvent` | `party, oldLeader, newLeader` | Cambio de líder |
+
+### EXP Compartido
+
+Cuando un jugador mata un mob, todos los miembros del grupo dentro de **50 bloques** reciben la misma cantidad de EXP.
+Los miembros del grupo ven `+X EXP (grupo)` en su action bar.
+
+### Ejemplo de integración (Procedural Dungeons)
+
+```kotlin
+fun createDungeonFor(player: Player, template: DungeonTemplate): DungeonInstance {
+    val members = resolveParty(player)
+    return DungeonAPI.createDungeon(template, members)
+}
+
+private fun resolveParty(player: Player): List<Player> {
+    val openRPG = Bukkit.getServicesManager().load(OpenRPGAPI::class.java)
+    return if (openRPG != null) {
+        openRPG.getParty(player)?.members ?: listOf(player)
+    } else {
+        listOf(player) // Solo
+    }
+}
+```
+
+### Comandos
+
+| Comando | Aliases | Descripción |
+|---|---|---|
+| `/party create` | `/p create`, `/rpg party create` | Crear un grupo |
+| `/party invite <jugador>` | `/p invite`, `/rpg party invite` | Invitar jugador (solo líder) |
+| `/party accept [jugador]` | `/p accept` | Aceptar invitación |
+| `/party decline [jugador]` | `/p decline` | Rechazar invitación |
+| `/party leave` | `/p leave` | Abandonar grupo |
+| `/party kick <jugador>` | `/p kick`, `/rpg party kick` | Expulsar miembro (solo líder) |
+| `/party disband` | `/p disband` | Disolver grupo (solo líder) |
+| `/party transfer <jugador>` | `/p transfer` | Transferir liderazgo |
+| `/party list` | `/p list` | Listar miembros |
+| `/party help` | `/p help` | Ayuda del grupo |
 
 ## Fábricas
 
@@ -260,3 +385,12 @@ val ctx = api.context(player, event)
 | `getSkillsForClass(className)` | Skills de una clase específica |
 | `canUnlockSkill(player, nodeId)` | Comprueba si un jugador puede desbloquear un skill |
 | `getSkillTree()` | Obtiene el objeto SkillTree |
+| `createParty(leader)` | Crea un grupo |
+| `getParty(player)` | Obtiene el grupo del jugador |
+| `inviteToParty(inviter, invited)` | Invita un jugador al grupo |
+| `acceptInvite(player)` | Acepta invitación pendiente |
+| `declineInvite(player)` | Rechaza invitación pendiente |
+| `leaveParty(player)` | Abandona el grupo |
+| `kickFromParty(leader, target)` | Expulsa un miembro (solo líder) |
+| `disbandParty(leader)` | Disuelve el grupo (solo líder) |
+| `transferLeadership(leader, newLeader)` | Transfiere liderazgo |

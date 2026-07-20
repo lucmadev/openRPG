@@ -39,6 +39,9 @@ Players can select it via `/openrpg class` or directly:
 /openrpg class paladin
 ```
 
+> **Alias:** All `/openrpg` commands also work with `/rpg` and `/orpg`.
+> Example: `/rpg class`, `/rpg talent`, `/rpg party invite <player>`.
+
 ## Registering conditions
 
 Conditions must implement `Condition`:
@@ -194,9 +197,17 @@ val node = SkillTreeNode(
     description = "+20% defense when low HP",
     modifier = Modifier(condition, effect),
     material = Material.SHIELD,
-    prerequisites = listOf("pal_defense_1")
+    prerequisites = listOf("pal_defense_1"),
+    classId = "paladin"  // Required to show in the talent GUI
 )
 api.registerSkill(node)
+
+// Note: The `classId` field is essential for the skill to appear
+// in the talent tree GUI for the specified class.
+// Without it, the skill is stored but never displayed.
+
+// You can also register skills from another plugin at any time:
+// Just call registerSkill during your plugin's onEnable().
 ```
 
 ## Reading skills
@@ -220,6 +231,120 @@ if (result.can) {
     println(result.reason) // e.g. "Requires: Fury"
 }
 ```
+
+## Party System
+
+OpenRPG includes a full party (group) system that other plugins can consume.
+
+### Party Interface
+
+```kotlin
+interface Party {
+    val id: UUID
+    val leader: Player
+    val members: List<Player>
+    val isFull: Boolean
+    val size: Int
+    val maxSize: Int
+}
+```
+
+### Party API
+
+```kotlin
+// Create a party
+val party = api.createParty(player)
+
+// Get a player's party
+val party = api.getParty(player)
+
+// Invite a player (leader only)
+api.inviteToParty(inviter, invited)
+
+// Accept / decline a pending invitation
+api.acceptInvite(player)
+api.declineInvite(player)
+
+// Leave the party / kick a member (leader only)
+api.leaveParty(player)
+api.kickFromParty(leader, target)
+
+// Disband the party (leader only)
+api.disbandParty(leader)
+
+// Transfer leadership to another member
+api.transferLeadership(leader, newLeader)
+```
+
+### Party Events
+
+```kotlin
+import org.lucma.openRPG.events.*
+
+@EventHandler
+fun onPartyJoin(event: PartyJoinEvent) {
+    val party = event.party
+    val player = event.player
+    // particles, sounds, broadcast
+}
+
+@EventHandler
+fun onPartyLeave(event: PartyLeaveEvent) {
+    when (event.reason) {
+        LeaveReason.VOLUNTARY -> // left voluntarily
+        LeaveReason.KICKED -> // was kicked
+        LeaveReason.DISCONNECTED -> // disconnected
+        LeaveReason.DISBANDED -> // party disbanded
+    }
+}
+```
+
+| Event | Attributes | Description |
+|---|---|---|
+| `PartyPreInviteEvent` | `party, inviter, invited` | Cancellable — fired before invite is sent |
+| `PartyInviteEvent` | `party, inviter, invited` | Fired when an invite is sent |
+| `PartyJoinEvent` | `party, player` | Fired when a player joins |
+| `PartyLeaveEvent` | `party, player, reason` | Fired when a player leaves |
+| `PartyDisbandEvent` | `party` | Fired when the party is disbanded |
+| `PartyLeaderChangeEvent` | `party, oldLeader, newLeader` | Fired on leadership transfer |
+
+### EXP Sharing
+
+When a player kills a mob, all party members within **50 blocks** receive the same amount of EXP.
+Party members see `+X EXP (party share)` in their action bar.
+
+### Integration example (Procedural Dungeons)
+
+```kotlin
+fun createDungeonFor(player: Player, template: DungeonTemplate): DungeonInstance {
+    val members = resolveParty(player)
+    return DungeonAPI.createDungeon(template, members)
+}
+
+private fun resolveParty(player: Player): List<Player> {
+    val openRPG = Bukkit.getServicesManager().load(OpenRPGAPI::class.java)
+    return if (openRPG != null) {
+        openRPG.getParty(player)?.members ?: listOf(player)
+    } else {
+        listOf(player) // Solo fallback
+    }
+}
+```
+
+### Commands
+
+| Command | Aliases | Description |
+|---|---|---|
+| `/party create` | `/p create`, `/rpg party create` | Create a party |
+| `/party invite <player>` | `/p invite`, `/rpg party invite` | Invite a player (leader only) |
+| `/party accept [player]` | `/p accept` | Accept an invitation |
+| `/party decline [player]` | `/p decline` | Decline an invitation |
+| `/party leave` | `/p leave` | Leave the party |
+| `/party kick <player>` | `/p kick`, `/rpg party kick` | Kick a member (leader only) |
+| `/party disband` | `/p disband` | Disband the party (leader only) |
+| `/party transfer <player>` | `/p transfer` | Transfer leadership |
+| `/party list` | `/p list` | List party members |
+| `/party help` | `/p help` | Show party help |
 
 ## Factories
 
@@ -261,3 +386,12 @@ val ctx = api.context(player, event)
 | `getSkillsForClass(className)` | Skills for a specific class |
 | `canUnlockSkill(player, nodeId)` | Check if a player can unlock a skill |
 | `getSkillTree()` | Get the SkillTree object |
+| `createParty(leader)` | Create a party |
+| `getParty(player)` | Get a player's party |
+| `inviteToParty(inviter, invited)` | Invite a player to the party |
+| `acceptInvite(player)` | Accept pending invitation |
+| `declineInvite(player)` | Decline pending invitation |
+| `leaveParty(player)` | Leave the party |
+| `kickFromParty(leader, target)` | Kick a member (leader only) |
+| `disbandParty(leader)` | Disband the party (leader only) |
+| `transferLeadership(leader, newLeader)` | Transfer party leadership |
