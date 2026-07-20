@@ -89,9 +89,9 @@ class OpenRPGCommand : CommandExecutor {
 
     private fun showHelp(player: Player, label: String) {
         player.sendMessage("")
-        player.sendMessage("§6§l╔══════════════════════════════╗")
-        player.sendMessage("§6§l║      §e§lopenRPG Help        §6§l║")
-        player.sendMessage("§6§l╚══════════════════════════════╝")
+        player.sendMessage("§6§l╔═════════════════╗")
+        player.sendMessage("§6§l║          §e§lopenRPG Help        §6§l║")
+        player.sendMessage("§6§l╚═════════════════╝")
         player.sendMessage("")
         player.sendMessage("§e/" + label + " §7- Show this help")
         player.sendMessage("§e/" + label + " status §7- Player status")
@@ -101,9 +101,6 @@ class OpenRPGCommand : CommandExecutor {
         player.sendMessage("§e/" + label + " party §7- Party commands (/party, /p)")
         player.sendMessage("")
         player.sendMessage("§7Available classes:")
-        ClassRegistry.all().forEach { c ->
-            player.sendMessage("  §e" + c.id + "§8 → §f" + c.name)
-        }
         player.sendMessage("")
     }
 }

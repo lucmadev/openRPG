@@ -311,7 +311,9 @@ class PartyCommand : CommandExecutor {
     }
 
     private fun sendHelp(player: Player) {
-        player.sendMessage(msg("party.help.title"))
+        player.sendMessage("§6§l╔═══════════════╗")
+        player.sendMessage("§6§l║   §e§lopenRPG Party Help    §6§l║")
+        player.sendMessage("§6§l╚═══════════════╝")
         player.sendMessage(msg("party.help.create"))
         player.sendMessage(msg("party.help.invite"))
         player.sendMessage(msg("party.help.accept"))
