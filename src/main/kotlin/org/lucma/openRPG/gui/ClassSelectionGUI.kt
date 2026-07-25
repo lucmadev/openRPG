@@ -84,10 +84,12 @@ object ClassSelectionGUI : Listener {
                 listOf(
                     Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
                     Component.text("").decoration(TextDecoration.ITALIC, false),
-                    Component.text("§c❤ §7" + player.health.roundToInt() + "§8/§c" + maxHp)
+                    Component.text(msg("gui.stats.health", player, player.health.roundToInt(), maxHp))
                         .decoration(TextDecoration.ITALIC, false),
-                    Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
-                    Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+                    Component.text(msg("gui.stats.hunger", player, player.foodLevel))
+                        .decoration(TextDecoration.ITALIC, false),
+                    Component.text(msg("gui.stats.level", player, player.level))
+                        .decoration(TextDecoration.ITALIC, false)
                 )
             )
             skull.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)

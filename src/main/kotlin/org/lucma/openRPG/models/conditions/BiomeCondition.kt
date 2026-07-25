@@ -9,8 +9,8 @@ import org.lucma.openRPG.models.types.Condition
  * @param matchType "exact" (default) o "category"
  */
 class BiomeCondition(
-    private val biome: String,
-    private val matchType: String = "exact"
+    val biome: String,
+    val matchType: String = "exact"
 ) : Condition {
     override fun matches(context: EffectContext): Boolean {
         val playerBiome = context.player.location.block.biome

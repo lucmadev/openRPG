@@ -69,8 +69,8 @@ class OpenRPGCommand : CommandExecutor {
             }
 
             else -> {
-                sender.sendMessage("§cUnknown subcommand: §f" + sub)
-                sender.sendMessage("§7Use §e/" + label + " help§7 to see available commands.")
+                sender.sendMessage(msg("command.help.unknown", sender, sub))
+                sender.sendMessage(msg("command.help.use", sender, label))
             }
         }
 
@@ -90,17 +90,20 @@ class OpenRPGCommand : CommandExecutor {
     private fun showHelp(player: Player, label: String) {
         player.sendMessage("")
         player.sendMessage("§6§l╔═════════════════╗")
-        player.sendMessage("§6§l║          §e§lopenRPG Help        §6§l║")
+        player.sendMessage("§6§l║         §e§l" + msg("command.help.title", player) + "       §6§l║")
         player.sendMessage("§6§l╚═════════════════╝")
         player.sendMessage("")
-        player.sendMessage("§e/" + label + " §7- Show this help")
-        player.sendMessage("§e/" + label + " status §7- Player status")
-        player.sendMessage("§e/" + label + " class §7- Select class (GUI)")
-        player.sendMessage("§e/" + label + " class <id> §7- Direct class assignment")
-        player.sendMessage("§e/" + label + " talent §7- Talent tree")
-        player.sendMessage("§e/" + label + " party §7- Party commands (/party, /p)")
+        player.sendMessage(msg("command.help.self", player, label))
+        player.sendMessage(msg("command.help.status", player, label))
+        player.sendMessage(msg("command.help.class_gui", player, label))
+        player.sendMessage(msg("command.help.class_assign", player, label))
+        player.sendMessage(msg("command.help.talent", player, label))
+        player.sendMessage(msg("command.help.party", player, label))
         player.sendMessage("")
-        player.sendMessage("§7Available classes:")
+        player.sendMessage(msg("command.help.available_classes", player))
+        ClassRegistry.all().forEach { c ->
+            player.sendMessage(msg("command.help.class_entry", player, c.id, c.name))
+        }
         player.sendMessage("")
     }
 }

@@ -5,7 +5,7 @@ import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.types.Condition
 
 class HealthAboveCondition(
-    private val threshold: Double = 0.70
+    val threshold: Double = 0.70
 ) : Condition {
     override fun matches(context: EffectContext): Boolean {
         val player = context.player
