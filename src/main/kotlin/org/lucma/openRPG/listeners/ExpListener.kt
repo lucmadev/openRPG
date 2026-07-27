@@ -50,6 +50,7 @@ object ExpListener : Listener {
 
         } catch (ex: Exception) {
             Bukkit.getLogger().severe("[openRPG] Error in ExpListener: " + ex.message)
+            Bukkit.getLogger().severe("[openRPG] Error in ExpListener: " + ex.message)
             ex.printStackTrace()
         }
     }
@@ -88,6 +89,9 @@ object ExpListener : Listener {
         val maxHealth = event.entity.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
         return when {
             maxHealth >= 200 -> 50
+            maxHealth >= 80 -> 25
+            maxHealth >= 40 -> 15
+            maxHealth >= 10 -> 8
             maxHealth >= 80 -> 25
             maxHealth >= 40 -> 15
             maxHealth >= 10 -> 8

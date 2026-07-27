@@ -11,6 +11,7 @@ import org.lucma.openRPG.core.registry.StatRegistry
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 import org.bukkit.Material
+import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
@@ -26,9 +27,11 @@ import org.lucma.openRPG.models.types.Effect
 class OpenRPGAPIImpl : OpenRPGAPI {
 
     // ════════════════════════ Registries ════════════════════════
+    // ════════════════════════ Registries ════════════════════════
 
     override fun registerClass(clazz: PlayerClass) {
         ClassRegistry.register(clazz)
+        Bukkit.getLogger().info("[openRPG-API] Class registered: " + clazz.id)
         Bukkit.getLogger().info("[openRPG-API] Class registered: " + clazz.id)
     }
 
@@ -57,6 +60,7 @@ class OpenRPGAPIImpl : OpenRPGAPI {
     override fun applyStatModifier(id: String, stats: PlayerStats, config: Map<String, Any>): Boolean =
         StatRegistry.apply(id, stats, config)
 
+    // ════════════════════════ Player ════════════════════════
     // ════════════════════════ Player ════════════════════════
 
     override fun setPlayerClass(player: Player, clazz: PlayerClass) {
@@ -91,11 +95,13 @@ class OpenRPGAPIImpl : OpenRPGAPI {
         EffectEngine.apply(context, modifiers)
 
         // Apply stats to the event if it is damage-related
+        // Apply stats to the event if it is damage-related
         if (event is org.bukkit.event.entity.EntityDamageByEntityEvent) {
             event.damage *= context.stats.damageMultiplier
         }
     }
 
+    // ════════════════════════ Factories ════════════════════════
     // ════════════════════════ Factories ════════════════════════
 
     override fun modifier(condition: Condition, effect: Effect): Modifier =

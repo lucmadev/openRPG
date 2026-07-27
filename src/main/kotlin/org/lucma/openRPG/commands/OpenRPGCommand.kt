@@ -14,6 +14,7 @@ import org.lucma.openRPG.managers.PlayerClassManager
 
 /**
  * Single /openrpg command with subcommands.
+ * Single /openrpg command with subcommands.
  *
  *   /openrpg               → help
  *   /openrpg status        → Status GUI
@@ -43,6 +44,7 @@ class OpenRPGCommand : CommandExecutor {
                 StatusGUI.open(sender)
             }
 
+
             "class", "clase", "c" -> {
                 val classId = args.getOrNull(1)
                 if (classId != null) {
@@ -51,6 +53,7 @@ class OpenRPGCommand : CommandExecutor {
                     ClassSelectionGUI.open(sender)
                 }
             }
+
 
             "talent", "talento", "t", "skill" -> {
                 TalentGUI.open(sender)
@@ -67,6 +70,7 @@ class OpenRPGCommand : CommandExecutor {
             "help", "h", "?" -> {
                 showHelp(sender, label)
             }
+
 
             else -> {
                 sender.sendMessage(msg("command.help.unknown", sender, sub))

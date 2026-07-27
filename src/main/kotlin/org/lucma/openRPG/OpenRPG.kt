@@ -67,11 +67,15 @@ class OpenRPG : JavaPlugin() {
         // ── API ──
         Bukkit.getServicesManager()
             .register(OpenRPGAPI::class.java, OpenRPGAPIImpl(), this, org.bukkit.plugin.ServicePriority.Normal)
+        Bukkit.getServicesManager()
+            .register(OpenRPGAPI::class.java, OpenRPGAPIImpl(), this, org.bukkit.plugin.ServicePriority.Normal)
 
+        logger.info("openRPG enabled successfully.")
         logger.info("openRPG enabled successfully.")
     }
 
     override fun onDisable() {
+        logger.info("Saving online player data...")
         logger.info("Saving online player data...")
         Bukkit.getOnlinePlayers().forEach { player ->
             val clazz = PlayerClassManager.getPlayerClass(player)

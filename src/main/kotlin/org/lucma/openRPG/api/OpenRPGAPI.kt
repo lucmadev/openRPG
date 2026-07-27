@@ -3,6 +3,7 @@ package org.lucma.openRPG.api
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.Material
+import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
@@ -103,8 +104,10 @@ interface OpenRPGAPI {
     // ═══════════════════════════════════════════
 
     /** Create a Modifier with already instantiated condition and effect */
+    /** Create a Modifier with already instantiated condition and effect */
     fun modifier(condition: Condition, effect: Effect): Modifier
 
+    /** Create an EffectContext for use with applyModifiers */
     /** Create an EffectContext for use with applyModifiers */
     fun context(player: Player, event: Event): EffectContext
 

@@ -49,13 +49,34 @@ object StatusGUI : Listener {
                     msg("gui.status.select_class", player)
                 )
             )
+            inv.setItem(
+                4,
+                item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player))
+            )
+            inv.setItem(
+                22,
+                item(
+                    Material.ENDER_CHEST,
+                    msg("gui.status.select_class", player),
+                    msg("gui.status.select_class", player)
+                )
+            )
             inv.setItem(31, item(Material.OAK_DOOR, msg("gui.status.close", player)))
             player.openInventory(inv)
             return
         }
 
         // ── Row 1: general info ──
+        // ── Row 1: general info ──
         inv.setItem(0, buildPlayerHead(player, clazz.name))
+        inv.setItem(
+            2,
+            item(
+                Material.EXPERIENCE_BOTTLE,
+                msg("gui.status.level", player, data.level),
+                msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)
+            )
+        )
         inv.setItem(
             2,
             item(
@@ -123,7 +144,49 @@ object StatusGUI : Listener {
                 msg("gui.status.stats_multiplier", player, "1.0")
             )
         )
+        // ── Row 2: Stats ──
+        inv.setItem(
+            9,
+            item(
+                Material.RED_DYE,
+                msg("gui.status.stats_damage", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            11,
+            item(
+                Material.BLUE_DYE,
+                msg("gui.status.stats_defense", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            13,
+            item(
+                Material.WHITE_DYE,
+                msg("gui.status.stats_speed", player),
+                msg("gui.status.stats_multiplier", player, "1.00")
+            )
+        )
+        inv.setItem(
+            15,
+            item(
+                Material.ORANGE_DYE,
+                msg("gui.status.stats_crit", player),
+                msg("gui.status.stats_crit_chance", player, "0")
+            )
+        )
+        inv.setItem(
+            17,
+            item(
+                Material.YELLOW_DYE,
+                msg("gui.status.stats_crit_multi", player),
+                msg("gui.status.stats_multiplier", player, "1.0")
+            )
+        )
 
+        // ── Row 3: Active modifiers ──
         // ── Row 3: Active modifiers ──
         var slot = 18
         for (mod in clazz.modifiers) {
@@ -151,6 +214,7 @@ object StatusGUI : Listener {
         }
 
         // ── Row 4: Buttons ──
+        // ── Row 4: Buttons ──
         inv.setItem(27, item(Material.ENDER_CHEST, msg("gui.status.btn_change_class", player)))
         inv.setItem(31, item(Material.EMERALD_BLOCK, msg("gui.status.btn_talent_tree", player)))
         inv.setItem(35, item(Material.OAK_DOOR, msg("gui.status.close", player)))
@@ -158,6 +222,7 @@ object StatusGUI : Listener {
         player.openInventory(inv)
     }
 
+    /** Build the player head with their stats in the lore */
     /** Build the player head with their stats in the lore */
     private fun buildPlayerHead(player: Player, className: String): ItemStack {
         val item = ItemStack(Material.PLAYER_HEAD)
@@ -198,6 +263,13 @@ object StatusGUI : Listener {
 
         when (event.rawSlot) {
             8, 35 -> player.closeInventory()
+            6, 31 -> {
+                player.closeInventory(); TalentGUI.open(player)
+            }
+
+            22, 27 -> {
+                player.closeInventory(); ClassSelectionGUI.open(player)
+            }
             6, 31 -> {
                 player.closeInventory(); TalentGUI.open(player)
             }

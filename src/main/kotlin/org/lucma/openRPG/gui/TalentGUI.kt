@@ -62,6 +62,14 @@ object TalentGUI : Listener {
                 msg("gui.talent.exp_header", player, data.exp, data.expToNextLevel)
             )
         )
+        inv.setItem(
+            2,
+            item(
+                Material.EXPERIENCE_BOTTLE,
+                msg("gui.talent.points_header", player, data.talentPoints),
+                msg("gui.talent.exp_header", player, data.exp, data.expToNextLevel)
+            )
+        )
         inv.setItem(8, item(Material.OAK_DOOR, msg("gui.talent.close", player)))
 
         for (slot in listOf(1, 3, 5, 7)) {
@@ -136,11 +144,19 @@ object TalentGUI : Listener {
                         Component.text(msg("gui.talent.learned", player)).decoration(TextDecoration.ITALIC, false)
                     )
                 )
+                meta.lore(
+                    listOf(
+                        Component.text(node.description).decoration(TextDecoration.ITALIC, false),
+                        Component.text("").decoration(TextDecoration.ITALIC, false),
+                        Component.text(msg("gui.talent.learned", player)).decoration(TextDecoration.ITALIC, false)
+                    )
+                )
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
                 item.itemMeta = meta
                 item.addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
                 item
             }
+
 
             canUnlock -> {
                 val item = ItemStack(node.material)
@@ -156,6 +172,9 @@ object TalentGUI : Listener {
                     lore.add(
                         Component.text(msg("gui.talent.requires", player, pre)).decoration(TextDecoration.ITALIC, false)
                     )
+                    lore.add(
+                        Component.text(msg("gui.talent.requires", player, pre)).decoration(TextDecoration.ITALIC, false)
+                    )
                 }
                 meta.lore(lore)
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
@@ -163,6 +182,7 @@ object TalentGUI : Listener {
                 item.addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
                 item
             }
+
 
             else -> {
                 val item = ItemStack(Material.GRAY_DYE)
@@ -177,7 +197,14 @@ object TalentGUI : Listener {
                         Component.text(msg("gui.talent.not_available", player, check.reason))
                             .decoration(TextDecoration.ITALIC, false)
                     )
+                    lore.add(
+                        Component.text(msg("gui.talent.not_available", player, check.reason))
+                            .decoration(TextDecoration.ITALIC, false)
+                    )
                 } else {
+                    lore.add(
+                        Component.text(msg("gui.talent.no_points", player)).decoration(TextDecoration.ITALIC, false)
+                    )
                     lore.add(
                         Component.text(msg("gui.talent.no_points", player)).decoration(TextDecoration.ITALIC, false)
                     )
@@ -282,6 +309,18 @@ object TalentGUI : Listener {
         val meta = item.itemMeta as SkullMeta
         meta.setOwningPlayer(player)
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
+        meta.lore(
+            listOf(
+                Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+                Component.text("").decoration(TextDecoration.ITALIC, false),
+                Component.text(
+                    "§c❤ §7" + player.health.roundToInt() + "§8/§c" + (player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt()
+                        ?: 20)
+                ).decoration(TextDecoration.ITALIC, false),
+                Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
+                Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+            )
+        )
         meta.lore(
             listOf(
                 Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
