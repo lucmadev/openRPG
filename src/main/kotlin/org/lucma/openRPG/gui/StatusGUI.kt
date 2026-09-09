@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
 import org.lucma.openRPG.core.LanguageManager.classDisplayName
 import org.lucma.openRPG.core.LanguageManager.msg
+import org.lucma.openRPG.core.stats.StatCalculator
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 import org.lucma.openRPG.models.talents.SkillTree
@@ -38,18 +39,6 @@ object StatusGUI : Listener {
         }
 
         if (clazz == null) {
-            inv.setItem(
-                4,
-                item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player))
-            )
-            inv.setItem(
-                22,
-                item(
-                    Material.ENDER_CHEST,
-                    msg("gui.status.select_class", player),
-                    msg("gui.status.select_class", player)
-                )
-            )
             inv.setItem(
                 4,
                 item(Material.BARRIER, msg("gui.status.no_class", player), msg("gui.status.no_class_hint", player))
@@ -88,13 +77,13 @@ object StatusGUI : Listener {
         inv.setItem(6, item(Material.EMERALD, msg("gui.status.talent_points", player, data.talentPoints)))
         inv.setItem(8, item(Material.OAK_DOOR, msg("gui.status.close", player)))
 
-        // ── Row 2: Stats ──
+        val live = StatCalculator.preview(player)
         inv.setItem(
             9,
             item(
                 Material.RED_DYE,
                 msg("gui.status.stats_damage", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
+                msg("gui.status.stats_multiplier", player, "%.2f".format(live.damageMultiplier))
             )
         )
         inv.setItem(
@@ -102,7 +91,7 @@ object StatusGUI : Listener {
             item(
                 Material.BLUE_DYE,
                 msg("gui.status.stats_defense", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
+                msg("gui.status.stats_multiplier", player, "%.2f".format(live.defenseMultiplier))
             )
         )
         inv.setItem(
@@ -110,7 +99,7 @@ object StatusGUI : Listener {
             item(
                 Material.WHITE_DYE,
                 msg("gui.status.stats_speed", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
+                msg("gui.status.stats_multiplier", player, "%.2f".format(live.speedMultiplier))
             )
         )
         inv.setItem(
@@ -118,7 +107,7 @@ object StatusGUI : Listener {
             item(
                 Material.ORANGE_DYE,
                 msg("gui.status.stats_crit", player),
-                msg("gui.status.stats_crit_chance", player, "0")
+                msg("gui.status.stats_crit_chance", player, (live.critChance * 100).roundToInt())
             )
         )
         inv.setItem(
@@ -126,52 +115,10 @@ object StatusGUI : Listener {
             item(
                 Material.YELLOW_DYE,
                 msg("gui.status.stats_crit_multi", player),
-                msg("gui.status.stats_multiplier", player, "1.0")
-            )
-        )
-        // ── Row 2: Stats ──
-        inv.setItem(
-            9,
-            item(
-                Material.RED_DYE,
-                msg("gui.status.stats_damage", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
-            )
-        )
-        inv.setItem(
-            11,
-            item(
-                Material.BLUE_DYE,
-                msg("gui.status.stats_defense", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
-            )
-        )
-        inv.setItem(
-            13,
-            item(
-                Material.WHITE_DYE,
-                msg("gui.status.stats_speed", player),
-                msg("gui.status.stats_multiplier", player, "1.00")
-            )
-        )
-        inv.setItem(
-            15,
-            item(
-                Material.ORANGE_DYE,
-                msg("gui.status.stats_crit", player),
-                msg("gui.status.stats_crit_chance", player, "0")
-            )
-        )
-        inv.setItem(
-            17,
-            item(
-                Material.YELLOW_DYE,
-                msg("gui.status.stats_crit_multi", player),
-                msg("gui.status.stats_multiplier", player, "1.0")
+                msg("gui.status.stats_multiplier", player, "%.1f".format(live.critMultiplier))
             )
         )
 
-        // ── Row 3: Active modifiers ──
         // ── Row 3: Active modifiers ──
         var slot = 18
         for (mod in clazz.modifiers) {
@@ -199,7 +146,6 @@ object StatusGUI : Listener {
         }
 
         // ── Row 4: Buttons ──
-        // ── Row 4: Buttons ──
         inv.setItem(27, item(Material.ENDER_CHEST, msg("gui.status.btn_change_class", player)))
         inv.setItem(31, item(Material.EMERALD_BLOCK, msg("gui.status.btn_talent_tree", player)))
         inv.setItem(35, item(Material.OAK_DOOR, msg("gui.status.close", player)))
@@ -207,8 +153,7 @@ object StatusGUI : Listener {
         player.openInventory(inv)
     }
 
-    /** Build the player head with their stats in the lore */
-    /** Build the player head with their stats in the lore */
+    /** Build the player head with their stats in the lore. */
     private fun buildPlayerHead(player: Player, className: String): ItemStack {
         val item = ItemStack(Material.PLAYER_HEAD)
         val meta = item.itemMeta as SkullMeta
@@ -251,14 +196,6 @@ object StatusGUI : Listener {
             6, 31 -> {
                 player.closeInventory(); TalentGUI.open(player)
             }
-
-            22, 27 -> {
-                player.closeInventory(); ClassSelectionGUI.open(player)
-            }
-            6, 31 -> {
-                player.closeInventory(); TalentGUI.open(player)
-            }
-
             22, 27 -> {
                 player.closeInventory(); ClassSelectionGUI.open(player)
             }

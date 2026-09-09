@@ -5,6 +5,6 @@ import org.bukkit.event.Event
 
 data class EffectContext(
     val player: Player,
-    val event: Event,
+    val event: Event? = null,
     val stats: PlayerStats
 )
