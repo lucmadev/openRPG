@@ -67,24 +67,8 @@ object StatusGUI : Listener {
         }
 
         // ── Row 1: general info ──
-        // ── Row 1: general info ──
         inv.setItem(0, buildPlayerHead(player, clazz.name))
-        inv.setItem(
-            2,
-            item(
-                Material.EXPERIENCE_BOTTLE,
-                msg("gui.status.level", player, data.level),
-                msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)
-            )
-        )
-        inv.setItem(
-            2,
-            item(
-                Material.EXPERIENCE_BOTTLE,
-                msg("gui.status.level", player, data.level),
-                msg("gui.status.exp_header", player, data.exp, data.expToNextLevel)
-            )
-        )
+        inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, msg("gui.status.level", player, data.level)))
 
         val pct = (data.exp.toDouble() / data.expToNextLevel.toDouble()).coerceIn(0.0, 1.0)
         val filled = (pct * 20).toInt()

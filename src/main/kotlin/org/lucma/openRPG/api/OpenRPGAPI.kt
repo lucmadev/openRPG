@@ -3,7 +3,6 @@ package org.lucma.openRPG.api
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.Material
-import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier

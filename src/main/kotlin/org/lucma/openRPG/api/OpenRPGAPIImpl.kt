@@ -11,7 +11,6 @@ import org.lucma.openRPG.core.registry.StatRegistry
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 import org.bukkit.Material
-import org.bukkit.Material
 import org.lucma.openRPG.models.PlayerClass
 import org.lucma.openRPG.models.data.EffectContext
 import org.lucma.openRPG.models.data.Modifier
