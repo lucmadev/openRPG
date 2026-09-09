@@ -46,7 +46,7 @@ class PartyListener : Listener {
         // Notify remaining members
         party.members.forEach { member ->
             member.sendMessage(
-                org.lucma.openRPG.core.LanguageManager.msg("party.leave.disconnected", player.name)
+                org.lucma.openRPG.core.LanguageManager.msgComponent("party.leave.disconnected", member, player)
             )
         }
 
@@ -57,7 +57,7 @@ class PartyListener : Listener {
                 PartyLeaderChangeEvent(party, oldLeader, newLeader)
             )
             newLeader.sendMessage(
-                org.lucma.openRPG.core.LanguageManager.msg("party.transfer.you_are_leader")
+                org.lucma.openRPG.core.LanguageManager.msg("party.transfer.you_are_leader", newLeader)
             )
         }
     }
