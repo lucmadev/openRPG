@@ -16,6 +16,8 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
 import org.lucma.openRPG.core.LanguageManager.msg
+import org.lucma.openRPG.core.LanguageManager.skillDesc
+import org.lucma.openRPG.core.LanguageManager.skillName
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
 import org.lucma.openRPG.models.talents.SkillTree
@@ -54,14 +56,6 @@ object TalentGUI : Listener {
 
         // ── Info ──
         inv.setItem(0, itemHead(player, msg("class." + clazz.id + ".name", player)))
-        inv.setItem(
-            2,
-            item(
-                Material.EXPERIENCE_BOTTLE,
-                msg("gui.talent.points_header", player, data.talentPoints),
-                msg("gui.talent.exp_header", player, data.exp, data.expToNextLevel)
-            )
-        )
         inv.setItem(
             2,
             item(
@@ -128,25 +122,20 @@ object TalentGUI : Listener {
     private fun buildNodeItem(player: Player, node: SkillTreeNode): ItemStack {
         val data = PlayerDataManager.getOrCreate(player)
         val unlocked = node.id in data.unlockedNodes
-        val check = SkillTree.canUnlock(node.id, data.unlockedNodes)
+        val check = SkillTree.canUnlock(node.id, data.unlockedNodes, player)
         val canAfford = data.talentPoints > 0
         val canUnlock = check.can && canAfford
+        val name = skillName(node.id, player, node.name)
+        val description = skillDesc(node.id, player, node.description)
 
         return when {
             unlocked -> {
                 val item = ItemStack(node.material)
                 val meta = item.itemMeta
-                meta.displayName(Component.text("§a§l✔ " + node.name).decoration(TextDecoration.ITALIC, false))
+                meta.displayName(Component.text("§a§l✔ $name").decoration(TextDecoration.ITALIC, false))
                 meta.lore(
                     listOf(
-                        Component.text(node.description).decoration(TextDecoration.ITALIC, false),
-                        Component.text("").decoration(TextDecoration.ITALIC, false),
-                        Component.text(msg("gui.talent.learned", player)).decoration(TextDecoration.ITALIC, false)
-                    )
-                )
-                meta.lore(
-                    listOf(
-                        Component.text(node.description).decoration(TextDecoration.ITALIC, false),
+                        Component.text(description).decoration(TextDecoration.ITALIC, false),
                         Component.text("").decoration(TextDecoration.ITALIC, false),
                         Component.text(msg("gui.talent.learned", player)).decoration(TextDecoration.ITALIC, false)
                     )
@@ -157,21 +146,19 @@ object TalentGUI : Listener {
                 item
             }
 
-
             canUnlock -> {
                 val item = ItemStack(node.material)
                 val meta = item.itemMeta
-                meta.displayName(Component.text("§e§l◉ " + node.name).decoration(TextDecoration.ITALIC, false))
+                meta.displayName(Component.text("§e§l◉ $name").decoration(TextDecoration.ITALIC, false))
                 val lore = mutableListOf(
-                    Component.text(node.description).decoration(TextDecoration.ITALIC, false),
+                    Component.text(description).decoration(TextDecoration.ITALIC, false),
                     Component.text("").decoration(TextDecoration.ITALIC, false),
                     Component.text(msg("gui.talent.click_to_learn", player)).decoration(TextDecoration.ITALIC, false)
                 )
                 if (node.prerequisites.isNotEmpty()) {
-                    val pre = node.prerequisites.mapNotNull { SkillTree.getNode(it)?.name }.joinToString(", ")
-                    lore.add(
-                        Component.text(msg("gui.talent.requires", player, pre)).decoration(TextDecoration.ITALIC, false)
-                    )
+                    val pre = node.prerequisites.mapNotNull { id ->
+                        SkillTree.getNode(id)?.let { skillName(it.id, player, it.name) }
+                    }.joinToString(", ")
                     lore.add(
                         Component.text(msg("gui.talent.requires", player, pre)).decoration(TextDecoration.ITALIC, false)
                     )
@@ -183,13 +170,12 @@ object TalentGUI : Listener {
                 item
             }
 
-
             else -> {
                 val item = ItemStack(Material.GRAY_DYE)
                 val meta = item.itemMeta
-                meta.displayName(Component.text("§8" + node.name).decoration(TextDecoration.ITALIC, false))
+                meta.displayName(Component.text("§8$name").decoration(TextDecoration.ITALIC, false))
                 val lore = mutableListOf(
-                    Component.text(node.description).decoration(TextDecoration.ITALIC, false),
+                    Component.text(description).decoration(TextDecoration.ITALIC, false),
                     Component.text("").decoration(TextDecoration.ITALIC, false)
                 )
                 if (!check.can) {
@@ -197,14 +183,7 @@ object TalentGUI : Listener {
                         Component.text(msg("gui.talent.not_available", player, check.reason))
                             .decoration(TextDecoration.ITALIC, false)
                     )
-                    lore.add(
-                        Component.text(msg("gui.talent.not_available", player, check.reason))
-                            .decoration(TextDecoration.ITALIC, false)
-                    )
                 } else {
-                    lore.add(
-                        Component.text(msg("gui.talent.no_points", player)).decoration(TextDecoration.ITALIC, false)
-                    )
                     lore.add(
                         Component.text(msg("gui.talent.no_points", player)).decoration(TextDecoration.ITALIC, false)
                     )
@@ -271,7 +250,7 @@ object TalentGUI : Listener {
             return
         }
 
-        val result = SkillTree.canUnlock(node.id, data.unlockedNodes)
+        val result = SkillTree.canUnlock(node.id, data.unlockedNodes, player)
         if (!result.can) {
             player.sendActionBar(Component.text(msg("gui.talent.not_available", player, result.reason)))
             return
@@ -284,7 +263,9 @@ object TalentGUI : Listener {
 
         val ok = PlayerDataManager.allocateNode(player, node.id)
         if (ok) {
-            player.sendActionBar(Component.text(msg("gui.talent.learned_ok", player, node.name)))
+            player.sendActionBar(
+                Component.text(msg("gui.talent.learned_ok", player, skillName(node.id, player, node.name)))
+            )
             player.closeInventory()
             open(player)
         }
@@ -309,28 +290,17 @@ object TalentGUI : Listener {
         val meta = item.itemMeta as SkullMeta
         meta.setOwningPlayer(player)
         meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false))
+        val maxHp = player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20
         meta.lore(
             listOf(
-                Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
+                Component.text("§8" + player.name).decoration(TextDecoration.ITALIC, false),
                 Component.text("").decoration(TextDecoration.ITALIC, false),
-                Component.text(
-                    "§c❤ §7" + player.health.roundToInt() + "§8/§c" + (player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt()
-                        ?: 20)
-                ).decoration(TextDecoration.ITALIC, false),
-                Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
-                Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
-            )
-        )
-        meta.lore(
-            listOf(
-                Component.text("§8" + player.getName()).decoration(TextDecoration.ITALIC, false),
-                Component.text("").decoration(TextDecoration.ITALIC, false),
-                Component.text(
-                    "§c❤ §7" + player.health.roundToInt() + "§8/§c" + (player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt()
-                        ?: 20)
-                ).decoration(TextDecoration.ITALIC, false),
-                Component.text("§6🍗 §7" + player.foodLevel + "§8/§6" + 20).decoration(TextDecoration.ITALIC, false),
-                Component.text("§b✦ §7Nivel §f" + player.level).decoration(TextDecoration.ITALIC, false)
+                Component.text(msg("gui.stats.health", player, player.health.roundToInt(), maxHp))
+                    .decoration(TextDecoration.ITALIC, false),
+                Component.text(msg("gui.stats.hunger", player, player.foodLevel))
+                    .decoration(TextDecoration.ITALIC, false),
+                Component.text(msg("gui.stats.level", player, player.level))
+                    .decoration(TextDecoration.ITALIC, false)
             )
         )
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)

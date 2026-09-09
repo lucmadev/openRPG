@@ -82,6 +82,18 @@ object LanguageManager {
         return if (hasKey(key)) msg(key, player) else fallback
     }
 
+    /** Localized skill name, falling back to the YAML/API name. */
+    fun skillName(id: String, player: Player?, fallback: String): String {
+        val key = "skill.$id.name"
+        return if (hasKey(key)) msg(key, player) else fallback
+    }
+
+    /** Localized skill description, falling back to the YAML/API description. */
+    fun skillDesc(id: String, player: Player?, fallback: String): String {
+        val key = "skill.$id.desc"
+        return if (hasKey(key)) msg(key, player) else fallback
+    }
+
     /** Check if a key exists in the loaded messages. */
     fun hasKey(key: String): Boolean {
         return defaults.containsKey(key) || bundles.values.any { it.containsKey(key) }
