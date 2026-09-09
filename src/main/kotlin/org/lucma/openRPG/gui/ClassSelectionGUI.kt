@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
+import org.lucma.openRPG.core.LanguageManager.classDisplayName
 import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.managers.PlayerClassManager
@@ -26,14 +27,10 @@ object ClassSelectionGUI : Listener {
     private val classMaterials = mapOf(
         "warrior" to Material.IRON_SWORD,
         "mage" to Material.ENDER_PEARL,
-        "warrior" to Material.IRON_SWORD,
-        "mage" to Material.ENDER_PEARL,
         "assassin" to Material.NETHERITE_SWORD
     )
 
     private val classSlots = mapOf(
-        "warrior" to 11,
-        "mage" to 13,
         "warrior" to 11,
         "mage" to 13,
         "assassin" to 15
@@ -56,16 +53,19 @@ object ClassSelectionGUI : Listener {
 
         val current = PlayerClassManager.getPlayerClass(player)
         if (current != null) {
-            inv.setItem(22, item(Material.BOOK, msg("gui.class_selection.current", player, current.name), ""))
-        } else {
             inv.setItem(
                 22,
                 item(
-                    Material.BARRIER,
-                    msg("gui.class_selection.none", player),
-                    msg("gui.class_selection.no_class_hint", player)
+                    Material.BOOK,
+                    msg(
+                        "gui.class_selection.current",
+                        player,
+                        classDisplayName(current.id, player, current.name)
+                    ),
+                    ""
                 )
             )
+        } else {
             inv.setItem(
                 22,
                 item(
@@ -91,9 +91,6 @@ object ClassSelectionGUI : Listener {
             skull.displayName(
                 Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false)
             )
-            skull.displayName(
-                Component.text(msg("gui.class_selection.already_have", player)).decoration(TextDecoration.ITALIC, false)
-            )
             val maxHp = player.getAttribute(Attribute.MAX_HEALTH)?.value?.roundToInt() ?: 20
             skull.lore(
                 listOf(
@@ -112,20 +109,9 @@ object ClassSelectionGUI : Listener {
             item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.UNBREAKING, 1)
         } else {
             meta.displayName(
-                Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false)
-            )
-            meta.displayName(
-                Component.text(msg("class." + clazz.id + ".name", player)).decoration(TextDecoration.ITALIC, false)
+                Component.text(classDisplayName(clazz.id, player, clazz.name)).decoration(TextDecoration.ITALIC, false)
             )
             val desc = msg("class." + clazz.id + ".desc", player).replace("\\n", "\n")
-            meta.lore(
-                listOf(
-                    Component.text(desc).decoration(TextDecoration.ITALIC, false),
-                    Component.text("").decoration(TextDecoration.ITALIC, false),
-                    Component.text(msg("gui.class_selection.select_hint", player))
-                        .decoration(TextDecoration.ITALIC, false)
-                )
-            )
             meta.lore(
                 listOf(
                     Component.text(desc).decoration(TextDecoration.ITALIC, false),
@@ -165,9 +151,16 @@ object ClassSelectionGUI : Listener {
         }
 
         PlayerClassManager.setPlayerClass(player, clazz)
-        player.sendActionBar(Component.text(msg("gui.class_selection.assigned", player, clazz.name)))
+        player.sendActionBar(
+            Component.text(
+                msg(
+                    "gui.class_selection.assigned",
+                    player,
+                    classDisplayName(clazz.id, player, clazz.name)
+                )
+            )
+        )
         player.closeInventory()
-        StatusGUI.open(player)
         StatusGUI.open(player)
     }
 

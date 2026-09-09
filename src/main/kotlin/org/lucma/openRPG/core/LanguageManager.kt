@@ -76,6 +76,12 @@ object LanguageManager {
         return result
     }
 
+    /** Localized class display name, falling back to [fallback] for custom/API classes. */
+    fun classDisplayName(classId: String, player: Player?, fallback: String = classId): String {
+        val key = "class.$classId.name"
+        return if (hasKey(key)) msg(key, player) else fallback
+    }
+
     /** Check if a key exists in the loaded messages. */
     fun hasKey(key: String): Boolean {
         return defaults.containsKey(key) || bundles.values.any { it.containsKey(key) }

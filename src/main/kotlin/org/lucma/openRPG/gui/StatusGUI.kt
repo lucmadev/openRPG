@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
+import org.lucma.openRPG.core.LanguageManager.classDisplayName
 import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.managers.PlayerClassManager
 import org.lucma.openRPG.managers.PlayerDataManager
@@ -67,7 +68,7 @@ object StatusGUI : Listener {
         }
 
         // ── Row 1: general info ──
-        inv.setItem(0, buildPlayerHead(player, clazz.name))
+        inv.setItem(0, buildPlayerHead(player, classDisplayName(clazz.id, player, clazz.name)))
         inv.setItem(2, item(Material.EXPERIENCE_BOTTLE, msg("gui.status.level", player, data.level)))
 
         val pct = (data.exp.toDouble() / data.expToNextLevel.toDouble()).coerceIn(0.0, 1.0)

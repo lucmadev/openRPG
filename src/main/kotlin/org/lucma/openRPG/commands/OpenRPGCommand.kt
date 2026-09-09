@@ -5,6 +5,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.lucma.openRPG.core.LanguageManager.classDisplayName
 import org.lucma.openRPG.core.LanguageManager.msg
 import org.lucma.openRPG.core.registry.ClassRegistry
 import org.lucma.openRPG.gui.ClassSelectionGUI
@@ -88,7 +89,13 @@ class OpenRPGCommand : CommandExecutor {
             return
         }
         PlayerClassManager.setPlayerClass(player, clazz)
-        player.sendMessage(msg("command.class.assigned", player, clazz.name))
+        player.sendMessage(
+            msg(
+                "command.class.assigned",
+                player,
+                classDisplayName(clazz.id, player, clazz.name)
+            )
+        )
     }
 
     private fun showHelp(player: Player, label: String) {
@@ -106,7 +113,14 @@ class OpenRPGCommand : CommandExecutor {
         player.sendMessage("")
         player.sendMessage(msg("command.help.available_classes", player))
         ClassRegistry.all().forEach { c ->
-            player.sendMessage(msg("command.help.class_entry", player, c.id, c.name))
+            player.sendMessage(
+                msg(
+                    "command.help.class_entry",
+                    player,
+                    c.id,
+                    classDisplayName(c.id, player, c.name)
+                )
+            )
         }
         player.sendMessage("")
     }
